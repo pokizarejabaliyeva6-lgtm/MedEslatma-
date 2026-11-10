@@ -1,1 +1,1265 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedEslatma — Ochiq Havo Rang Oila va Salomatlik Markazi</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        skybrand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#082f49',
+                        }
+                    },
+                    animation: {
+                        'pop': 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+                    },
+                    keyframes: {
+                        pop: {
+                            '0%': { transform: 'scale(0.96)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #f0f9ff 100%);
+            color: #0c4a6e;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(14, 165, 233, 0.25);
+            box-shadow: 0 10px 30px 0 rgba(14, 165, 233, 0.12);
+        }
+        .glass-card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card-hover:hover {
+            border-color: rgba(14, 165, 233, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px -5px rgba(14, 165, 233, 0.22);
+        }
+        .sky-gradient {
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%);
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e0f2fe;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #38bdf8;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0ea5e9;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col lg:flex-row selection:bg-sky-500 selection:text-white">
+
+    <!-- TOAST NOTIFICATIONS CONTAINER -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4"></div>
+
+    <!-- DESKTOP SIDEBAR NAVIGATION -->
+    <aside class="hidden lg:flex flex-col w-80 glass-card border-r border-sky-300 fixed h-full z-30 justify-between p-6 overflow-y-auto">
+        <div>
+            <!-- Logo va Brend nomi -->
+            <div class="flex items-center gap-3.5 mb-6 cursor-pointer" onclick="switchTab('schedule')">
+                <div class="w-12 h-12 rounded-2xl sky-gradient flex items-center justify-center text-white text-2xl shadow-lg shadow-sky-500/30">
+                    <i class="fa-solid fa-pills"></i>
+                </div>
+                <div>
+                    <span class="font-display font-extrabold text-2xl tracking-tight text-slate-800">Med<span class="text-sky-600">Eslatma</span></span>
+                    <span class="block text-[11px] text-sky-700 uppercase tracking-widest font-bold">Ochiq Rejim • Multi-User</span>
+                </div>
+            </div>
+
+            <!-- MULTI-USER PROFILE SWITCHER -->
+            <div class="p-4 rounded-2xl bg-white/90 border border-sky-300 shadow-sm mb-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs text-sky-700 font-extrabold uppercase tracking-wider"><i class="fa-solid fa-users mr-1"></i>Faol Bemor Profili</span>
+                    <button onclick="openProfileModal()" class="text-[11px] bg-sky-100 hover:bg-sky-500 text-sky-800 hover:text-white px-2 py-1 rounded-lg transition-all font-bold">
+                        <i class="fa-solid fa-user-plus mr-1"></i>O'zgartirish
+                    </button>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div id="sidebar-avatar" class="w-11 h-11 rounded-full sky-gradient flex items-center justify-center text-white font-extrabold text-base shadow-md shrink-0">
+                        O'B
+                    </div>
+                    <div class="overflow-hidden">
+                        <h4 id="sidebar-profile-name" class="font-bold text-slate-800 text-sm truncate">Omonjon Bobo (74 yosh)</h4>
+                        <p class="text-[11px] text-emerald-600 font-bold truncate"><i class="fa-solid fa-shield-heart mr-1"></i>Shaxsiy profil faol</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Asosiy Navigatsiya Menu -->
+            <nav class="space-y-1.5">
+                <button onclick="switchTab('schedule')" data-tab="schedule" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-calendar-check w-5 text-center text-base"></i>
+                    <span>Dori Jadvali</span>
+                </button>
+                <button onclick="switchTab('add-medicine')" data-tab="add-medicine" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-capsules w-5 text-center text-base"></i>
+                    <span>Dori Qoldig‘i va Qo‘shish</span>
+                </button>
+                <button onclick="switchTab('doctors')" data-tab="doctors" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-user-doctor w-5 text-center text-base"></i>
+                    <span>Shifokorlar Nazorati</span>
+                </button>
+                <button onclick="switchTab('vitals')" data-tab="vitals" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-heart-pulse w-5 text-center text-base"></i>
+                    <span>Salomatlik Kundaligi</span>
+                </button>
+                <button onclick="switchTab('relative')" data-tab="relative" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-user-shield w-5 text-center text-base"></i>
+                    <span>Qarindosh Paneli</span>
+                </button>
+                <button onclick="switchTab('history')" data-tab="history" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-clock-rotate-left w-5 text-center text-base"></i>
+                    <span>Qabul Tarixi</span>
+                </button>
+                <button onclick="switchTab('report')" data-tab="report" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-file-medical w-5 text-center text-base"></i>
+                    <span>Shifokor Hisoboti</span>
+                </button>
+            </nav>
+        </div>
+
+
+    </aside>
+
+    <!-- MOBILE HEADER NAVIGATION -->
+    <header class="lg:hidden sticky top-0 z-30 glass-card border-b border-sky-300 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2.5" onclick="switchTab('schedule')">
+            <div class="w-10 h-10 rounded-xl sky-gradient flex items-center justify-center text-white text-lg">
+                <i class="fa-solid fa-pills"></i>
+            </div>
+            <span class="font-display font-extrabold text-xl text-slate-800">Med<span class="text-sky-600">Eslatma</span></span>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="openProfileModal()" class="bg-sky-200 text-sky-800 px-3 py-1.5 rounded-xl text-xs font-bold border border-sky-300">
+                Profil
+            </button>
+            <button onclick="triggerEmergencyAlert()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 animate-pulse shadow-md">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>SOS</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 lg:ml-80 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-12 max-w-7xl w-full mx-auto">
+
+        <!-- TOP BAR NOTIFICATION -->
+        <div class="hidden sm:flex items-center justify-between mb-8 glass-card px-6 py-4 rounded-2xl border-sky-300 shadow-sm">
+            <div class="flex items-center gap-3">
+                <span class="w-3 h-3 rounded-full bg-sky-500 animate-ping"></span>
+                <span class="text-sm text-slate-700 font-medium">Xush kelibsiz! Har bir foydalanuvchi o'z profilini ochib, dorilarini alohida boshqarishi mumkin.</span>
+            </div>
+            <button onclick="triggerEmergencyAlert()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-rose-600/20 transition-all">
+                <i class="fa-solid fa-phone-volume"></i>
+                <span>Qarindoshga SOS Signal</span>
+            </button>
+        </div>
+
+        <!-- ================= TAB 1: DORI JADVALI (BUGUNGI) ================= -->
+        <section id="tab-schedule" class="tab-section space-y-6 animate-pop">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900">Bugungi Dori Jadvali</h1>
+                    <p class="text-sm text-slate-600 font-medium">Faol profil uchun shaxsiy dori qabullari va eslatmalar</p>
+                </div>
+                <div class="bg-white/80 border border-sky-300 px-4 py-2 rounded-2xl text-sky-800 font-bold text-sm shadow-sm self-start">
+                    <i class="fa-regular fa-clock mr-2 text-sky-600"></i><span id="current-clock">00:00:00</span>
+                </div>
+            </div>
+
+            <!-- KPI Statistikalar -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="glass-card p-5 rounded-2xl border-sky-300">
+                    <div class="text-xs text-slate-600 font-bold">Jami dorilar</div>
+                    <div class="font-display text-2xl font-extrabold text-slate-800 mt-1" id="stat-total-meds">0 ta</div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border-sky-300">
+                    <div class="text-xs text-slate-600 font-bold">Qabul qilindi</div>
+                    <div class="font-display text-2xl font-extrabold text-emerald-600 mt-1" id="stat-taken-meds">0 ta</div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border-sky-300">
+                    <div class="text-xs text-slate-600 font-bold">Kutilmoqda</div>
+                    <div class="font-display text-2xl font-extrabold text-amber-600 mt-1" id="stat-remaining-meds">0 ta</div>
+                </div>
+            </div>
+
+            <!-- Progress Bar Card -->
+            <div class="glass-card rounded-3xl p-6 border-sky-300 shadow-sm">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="font-bold text-slate-800 text-base">Bugungi qabul intizomi</span>
+                    <span id="schedule-progress-text" class="text-sky-700 font-extrabold text-lg">0 / 0 (0%)</span>
+                </div>
+                <div class="w-full h-4 bg-sky-100 rounded-full overflow-hidden p-0.5 border border-sky-200">
+                    <div id="schedule-progress-bar" class="h-full rounded-full sky-gradient transition-all duration-700" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Medication List Cards Container -->
+            <div id="medication-cards-container" class="space-y-4"></div>
+        </section>
+
+        <!-- ================= TAB 2: DORI QOLDIG'I VA QO'SHISH / TAHRIRLASH ================= -->
+        <section id="tab-add-medicine" class="tab-section hidden space-y-6 animate-pop">
+            <div>
+                <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900" id="medicine-form-title">Dori Qo'shish va Qoldiq Nazorati</h1>
+                <p class="text-sm text-slate-600 font-medium">Katalogdan tanlang yoki yangi dori ma'lumotlarini kiriting va tahrirlang</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Form Formular -->
+                <div class="lg:col-span-2 glass-card rounded-3xl p-6 sm:p-8 border-sky-300 shadow-sm">
+                    <form id="form-medicine" onsubmit="handleSaveMedicineForm(event)" class="space-y-5">
+                        <input type="hidden" id="edit-med-id" value="">
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-slate-800 mb-2">Dori nomi va dozasi</label>
+                           
+                            <div class="relative">
+                                <input type="text" id="med-name" list="drug-catalog" onchange="handleSelectDrug(this.value)" oninput="handleSelectDrug(this.value)" required placeholder="Masalan: Enap 10mg yoki katalogdan tanlang..." class="w-full bg-white border border-sky-300 rounded-xl px-4 py-3 text-slate-800 text-sm focus:outline-none focus:border-sky-500 shadow-inner">
+                                <datalist id="drug-catalog">
+                                    <option value="Enap 10mg (Qon bosimi uchun)"></option>
+                                    <option value="Aspirin Cardio 100mg (Qon suyultiruvchi)"></option>
+                                    <option value="Pancreatin (Hazm qilish uchun)"></option>
+                                    <option value="Glycine (Tinchlantiruvchi)"></option>
+                                    <option value="Metformin 850mg (Qand diabetiga)"></option>
+                                    <option value="Amlodipine 5mg (Qon bosimiga)"></option>
+                                    <option value="Magne B6 (Asab va yurak uchun)"></option>
+                                    <option value="Concor 5mg (Yurak urishi uchun)"></option>
+                                    <option value="Omeprazol 20mg (Oshqozon uchun)"></option>
+                                    <option value="Valerianka (Tinchlantiruvchi sirop)"></option>
+                                    <option value="Paracetamol 500mg (Isitma va og'riq)"></option>
+                                    <option value="Ibuprofen 400mg (Og'riq qoldiruvchi)"></option>
+                                </datalist>
+                            </div>
+                            <span class="text-[11px] text-sky-700 mt-1 block font-medium"><i class="fa-solid fa-lightbulb mr-1 text-sky-600"></i>Katalogdan tanlasangiz, doza, rejim va ikonka avtomatik moslanadi.</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-800 mb-2">Qabul dozasi</label>
+                                <select id="med-dosage" required class="w-full bg-white border border-sky-300 rounded-xl px-4 py-3 text-slate-800 text-sm focus:outline-none focus:border-sky-500 font-semibold shadow-inner">
+                                    <option value="Tanlang">Tanlang </option>
+                                                                        <option value="1 tabletka">1 tabletka </option>
+                                    <option value="0.5 tabletka (Yarim tabletka)">0.5 tabletka (Yarim tabletka) </option>
+                                    <option value="2 tabletka">2 tabletka </option>
+                                    <option value="1 kapsula">1 kapsula </option>
+                                    <option value="2 kapsula">2 kapsula </option>
+                                    <option value="1 choy qoshiq (5ml)">1 choy qoshiq (5ml) </option>
+                                    <option value="1 osh qoshiq (10ml)">1 osh qoshiq (10ml) </option>
+                                    <option value="1 tomchi">1 tomchi </option>
+                                    <option value="2 tomchi">2 tomchi </option>
+                                    <option value="5 tomchi">5 tomchi </option>
+                                    <option value="10 tomchi">10 tomchi </option>
+                                    <option value="1 ml (Inyeksiya)">1 ml (Inyeksiya) </option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-800 mb-2">Qabul vaqti</label>
+                                <input type="time" id="med-time" required class="w-full bg-white border border-sky-300 rounded-xl px-4 py-3 text-slate-800 text-sm focus:outline-none shadow-inner">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-sky-800 mb-2">Qabul kunlari (Kodi / Rejimi)</label>
+                                <select id="med-schedule-code" class="w-full bg-white border border-sky-300 rounded-xl px-4 py-3 text-slate-800 text-sm focus:outline-none font-semibold shadow-inner">
+                                    <option value="Tanlang">Tanlang</option>
+                                            <option value="Har kuni (1-0-1)">Har kuni (Har kuni uzluksiz)</option>
+                                    <option value="Kunora / Kunga kun (1-0-0)">Kunora (1 kun ichiladi, 1 kun dam)</option>
+                                    <option value="Faqat toq kunlari">Faqat toq kunlari (Dushanba, Chorshanba, Juma)</option>
+                                    <option value="Faqat juft kunlari">Faqat juft kunlari (Seshanba, Payshanba, Shanba)</option>
+                                    <option value="Zarurat bo'lganda (PRN)">Zarurat bo'lganda (Qon bosimi yoki og'riqda)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-slate-800 mb-2">Qabul tartibi</label>
+                                <select id="med-instruction" class="w-full bg-white border border-sky-300 rounded-xl px-4 py-3 text-slate-800 text-sm focus:outline-none shadow-inner">
+                                    <option value="Tanlang ">Tanlang </option>
+                                                                        <option value="Ovqatdan keyin ">Ovqatdan keyin </option>
+                                    <option value="Ovqatdan oldin ">Ovqatdan oldin </option>
+                                    <option value="Ovqat mahali ">Ovqat mahali </option>
+                                    <option value="Uyqudan oldin ">Uyqudan oldin </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-800 mb-2">Qutidagi qoldiq (soni)</label>
+                                <input type="number" id="med-stock" required min="1" value="30" class="w-full bg-white border border-sky-300 rounded-xl px-4 py-3 text-slate-800 text-sm focus:outline-none shadow-inner">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-800 mb-2">Dori turi / Ikonka</label>
+                                <select id="med-icon" class="w-full bg-white border border-sky-300 rounded-xl px-4 py-3 text-slate-800 text-sm focus:outline-none shadow-inner">
+                                    <option value="fa-tablets">Tanlang</option>
+                                                                        <option value="fa-tablets">Tabletka </option>
+                                    <option value="fa-capsules">Kapsula </option>
+                                    <option value="fa-vial">Sirop / Suyuqlik </option>
+                                    <option value="fa-syringe">Inyeksiya</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 pt-2">
+                            <button type="submit" id="btn-save-medicine" class="flex-1 sky-gradient hover:opacity-95 text-white font-display font-extrabold py-3.5 rounded-xl shadow-lg shadow-sky-500/30 transition-all">
+                                <i class="fa-solid fa-plus-circle mr-2"></i>Jadvalga saqlash
+                            </button>
+                            <button type="button" id="btn-cancel-med-edit" onclick="resetMedicineForm()" class="hidden px-5 py-3.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm">
+                                Bekor qilish
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Stock Qoldiq Inventari -->
+                <div class="glass-card rounded-3xl p-6 border-sky-300 shadow-sm">
+                    <h3 class="font-display font-bold text-slate-800 text-base mb-4 flex items-center justify-between">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-boxes-stacked text-sky-600"></i>Dorilar Qoldig'i (Aptechka)</span>
+                        <span class="text-xs text-sky-700 font-bold">Tahrirlash / O'chirish</span>
+                    </h3>
+                    <div id="stock-inventory-list" class="space-y-3"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: SHIFOKORLAR NAZORATI ================= -->
+        <section id="tab-doctors" class="tab-section hidden space-y-6 animate-pop">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900">Shifokorlar va Maslahatlar</h1>
+                    <p class="text-sm text-slate-600 font-medium">Biriktirilgan shifokorlar ro‘yxati, tahrirlash va tezkor aloqa</p>
+                </div>
+                <button onclick="openDoctorModal()" class="sky-gradient text-white font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-sky-500/30 self-start">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Yangi Shifokor qo‘shish</span>
+                </button>
+            </div>
+
+            <!-- Doctors Grid -->
+            <div id="doctors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </section>
+
+        <!-- ================= TAB 4: SALOMATLIK KUNDALIGI ================= -->
+        <section id="tab-vitals" class="tab-section hidden space-y-6 animate-pop">
+            <div>
+                <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900">Salomatlik Kundaligi</h1>
+                <p class="text-sm text-slate-600 font-medium">Qon bosimi (Tonometr) va Qand miqdori (Glyukometr) ko‘rsatkichlarini yuritish</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="glass-card rounded-3xl p-6 border-sky-300 shadow-sm">
+                    <h3 class="font-display font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-heart-pulse text-rose-500"></i>
+                        <span>O'lchov Natijasini Kiriting</span>
+                    </h3>
+                    <form onsubmit="handleAddVital(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs text-slate-700 font-bold mb-1">O'lchov turi</label>
+                            <select id="vital-type" class="w-full bg-white border border-sky-300 rounded-xl px-3.5 py-2.5 text-slate-800 text-sm focus:outline-none shadow-inner">
+                                <option value="Qon bosimi">Qon bosimi (mm rt.st)</option>
+                                <option value="Qand miqdori">Qand miqdori (mmol/L)</option>
+                                <option value="Puls">Puls (urish/min)</option>
+                                <option value="Tana harorati">Tana harorati (°C)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-700 font-bold mb-1">Ko'rsatkich</label>
+                            <input type="text" id="vital-value" required placeholder="Masalan: 120/80 yoki 5.6" class="w-full bg-white border border-sky-300 rounded-xl px-3.5 py-2.5 text-slate-800 text-sm focus:outline-none shadow-inner">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-700 font-bold mb-1">Izoh</label>
+                            <input type="text" id="vital-note" placeholder="Masalan: Ertalabki o'lchov, doridan oldin" class="w-full bg-white border border-sky-300 rounded-xl px-3.5 py-2.5 text-slate-800 text-sm focus:outline-none shadow-inner">
+                        </div>
+                        <button type="submit" class="w-full sky-gradient text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-sky-500/20">
+                            Saqlash
+                        </button>
+                    </form>
+                </div>
+
+                <div class="lg:col-span-2 glass-card rounded-3xl p-6 border-sky-300 shadow-sm">
+                    <h3 class="font-display font-bold text-slate-800 text-base mb-4">Oxirgi O'lchovlar Tarixi</h3>
+                    <div id="vitals-history-list" class="space-y-3"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 5: QARINDOSH PANELI ================= -->
+        <section id="tab-relative" class="tab-section hidden space-y-6 animate-pop">
+            <div>
+                <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900">Qarindosh Nazorati (Caregiver Panel)</h1>
+                <p class="text-sm text-slate-600 font-medium">Farzandlar yoki mas'ul shaxs uchun bemorning dori ichganligini masofadan nazorat qilish</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="glass-card p-5 rounded-2xl border-sky-300 shadow-sm">
+                    <div class="text-xs text-slate-600 font-bold">Faol Bemor Profil:</div>
+                    <div id="relative-profile-display" class="font-bold text-base text-slate-800 mt-1"></div>
+                    <div class="text-xs text-sky-700 font-bold mt-1"><i class="fa-solid fa-user-shield mr-1"></i>Himoyalangan rejim</div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border-sky-300 shadow-sm">
+                    <div class="text-xs text-slate-600 font-bold">SMS / Telegram Bildirishnoma:</div>
+                    <div class="font-bold text-base text-emerald-600 mt-1">Faollashtirilgan ✅</div>
+                    <div class="text-xs text-slate-600 mt-1">Dori kechikganda avto-xabar boradi</div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border-sky-300 shadow-sm">
+                    <div class="text-xs text-slate-600 font-bold">Bemor holati:</div>
+                    <div class="font-bold text-base text-sky-600 mt-1">Onlayn (Aloqada)</div>
+                    <div class="text-xs text-slate-600 mt-1">Barcha dorilar nazorat ostida</div>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-3xl p-6 border-sky-300 shadow-sm">
+                <h3 class="font-display font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-eye text-sky-600"></i>
+                    <span>Real-vaqtdagi qabul audit jurnali</span>
+                </h3>
+                <div id="relative-audit-log" class="space-y-3"></div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 6: QABUL TARIXI ================= -->
+        <section id="tab-history" class="tab-section hidden space-y-6 animate-pop">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900">Dori Qabullari Tarixi</h1>
+                    <p class="text-sm text-slate-600 font-medium">O‘tgan kunlar davomida qabul qilingan yoki o‘tkazib yuborilgan dorilar</p>
+                </div>
+                <input type="text" id="history-search" oninput="renderHistory()" placeholder="Dori nomi bo'yicha qidiruv..." class="bg-white border border-sky-300 rounded-xl px-4 py-2 text-xs text-slate-800 focus:outline-none shadow-inner">
+            </div>
+
+            <div class="glass-card rounded-3xl overflow-hidden border-sky-300 shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-sky-200 text-xs uppercase tracking-wider text-sky-800 bg-sky-100/60 font-extrabold">
+                                <th class="py-4 px-5">Vaqti / Sana</th>
+                                <th class="py-4 px-5">Dori Nomi</th>
+                                <th class="py-4 px-5">Dozasi</th>
+                                <th class="py-4 px-5">Qabul Kodi / Rejimi</th>
+                                <th class="py-4 px-5">Holati</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="divide-y divide-sky-200/60 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 7: SHIFOKOR HISOBOTI ================= -->
+        <section id="tab-report" class="tab-section hidden space-y-6 animate-pop">
+            <div>
+                <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900">Salomatlik va Intizom Hisoboti</h1>
+                <p class="text-sm text-slate-600 font-medium">Shifokor ko‘rigi uchun dori ichish vaqti va ko'rsatkichlar tahlili</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card rounded-3xl p-6 border-sky-300 shadow-sm space-y-4">
+                    <h3 class="font-display font-bold text-slate-800 text-base">Haftalik Qabul Intizomi</h3>
+                    <div>
+                        <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-slate-700">Vaqtida ichilgan dorilar</span>
+                            <span class="text-sky-700 font-bold">94%</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-sky-100 rounded-full overflow-hidden border border-sky-200">
+                            <div class="h-full bg-sky-500 rounded-full" style="width: 94%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-slate-700">Kechikib ichilgan</span>
+                            <span class="text-amber-600 font-bold">4%</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-sky-100 rounded-full overflow-hidden border border-sky-200">
+                            <div class="h-full bg-amber-500 rounded-full" style="width: 4%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-slate-700">O'tkazib yuborilgan</span>
+                            <span class="text-rose-600 font-bold">2%</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-sky-100 rounded-full overflow-hidden border border-sky-200">
+                            <div class="h-full bg-rose-500 rounded-full" style="width: 2%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-3xl p-6 border-sky-300 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-display font-bold text-slate-800 text-base mb-2">Shifokor uchun PDF / Chop etish</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed mb-4 font-medium">
+                            Ushbu hisobot faol bemor profilining oxirgi 30 kunlik dori qabul qilish intizomi va tonometr natijalarini to'liq jamlaydi.
+                        </p>
+                    </div>
+                    <button onclick="window.print()" class="w-full bg-white hover:bg-sky-50 text-sky-800 border border-sky-300 font-bold py-3.5 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Hisobotni Chop Etish</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-30 glass-card border-t border-sky-300 px-2 py-2 flex items-center justify-around shadow-lg">
+        <button onclick="switchTab('schedule')" data-tab="schedule" class="mobile-nav-btn flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-medium">
+            <i class="fa-solid fa-calendar-check text-base"></i>
+            <span class="text-[10px]">Jadval</span>
+        </button>
+        <button onclick="switchTab('add-medicine')" data-tab="add-medicine" class="mobile-nav-btn flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-medium">
+            <i class="fa-solid fa-capsules text-base"></i>
+            <span class="text-[10px]">Qoldiq</span>
+        </button>
+        <button onclick="switchTab('doctors')" data-tab="doctors" class="mobile-nav-btn flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-medium">
+            <i class="fa-solid fa-user-doctor text-base"></i>
+            <span class="text-[10px]">Shifokor</span>
+        </button>
+        <button onclick="switchTab('vitals')" data-tab="vitals" class="mobile-nav-btn flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-medium">
+            <i class="fa-solid fa-heart-pulse text-base"></i>
+            <span class="text-[10px]">Kundalik</span>
+        </button>
+        <button onclick="switchTab('relative')" data-tab="relative" class="mobile-nav-btn flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-medium">
+            <i class="fa-solid fa-user-shield text-base"></i>
+            <span class="text-[10px]">Nazorat</span>
+        </button>
+    </nav>
+
+    <!-- MODAL: MULTI-USER PROFILES -->
+    <div id="profile-modal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-card rounded-3xl max-w-lg w-full p-6 sm:p-8 border border-sky-300 animate-pop shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-display font-bold text-lg text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-users text-sky-600"></i>
+                    <span>Bemor Profilini Tanlash yoki Yangi Ochish</span>
+                </h3>
+                <button onclick="closeProfileModal()" class="w-8 h-8 rounded-lg bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+
+            <div id="profiles-list-container" class="space-y-3 mb-6 max-h-60 overflow-y-auto pr-1"></div>
+
+            <div class="pt-4 border-t border-sky-200">
+                <h4 class="text-xs font-bold text-sky-800 mb-3"><i class="fa-solid fa-user-plus mr-1"></i>Yangi Bemor Profilini Qo'shish</h4>
+                <form onsubmit="handleCreateNewProfile(event)" class="space-y-3 text-xs">
+                    <p class="text-xs text-slate-600 mb-5 font-medium">
+    Internetdagi har bir foydalanuvchi o'z oila a'zosi yoki o'zi uchun alohida profil yaratib, ma'lumotlarini mustaqil boshqarishi mumkin.
+</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-slate-700 font-bold mb-1">Ism va familiya</label>
+                            <input type="text" id="new-p-name" required placeholder="Masalan: Dilobar Momogul" class="w-full bg-white border border-sky-300 rounded-xl px-3.5 py-2.5 text-slate-800 shadow-inner">
+                        </div>
+                        <div>
+                            <label class="block text-slate-700 font-bold mb-1">Yosh / Izoh</label>
+                            <input type="text" id="new-p-age" required placeholder="Masalan: 68 yosh" class="w-full bg-white border border-sky-300 rounded-xl px-3.5 py-2.5 text-slate-800 shadow-inner">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full sky-gradient text-white font-bold py-3 rounded-xl shadow-lg mt-1">
+                        Yangi Profil Ochish va Unga O'tish
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT DOCTOR -->
+    <div id="doctor-modal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-card rounded-3xl max-w-md w-full p-6 border border-sky-300 animate-pop shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-display font-bold text-base text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-user-doctor text-sky-600"></i>
+                    <span id="doc-modal-title">Yangi Shifokor Qo‘shish</span>
+                </h3>
+                <button onclick="closeDoctorModal()" class="w-8 h-8 rounded-lg bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="handleSaveDoctorForm(event)" class="space-y-3.5 text-xs">
+                <input type="hidden" id="edit-doc-id" value="">
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1">Shifokor F.I.Sh.</label>
+                    <input type="text" id="doc-name" required placeholder="Dr. Karimov Alisher" class="w-full bg-white border border-sky-300 rounded-xl px-3.5 py-2.5 text-slate-800 shadow-inner">
+                </div>
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1">Mutaxassisligi</label>
+                    <input type="text" id="doc-spec" required placeholder="Kardiolog / Terapevt" class="w-full bg-white border border-sky-300 rounded-xl px-3.5 py-2.5 text-slate-800 shadow-inner">
+                </div>
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1">Telefon raqami</label>
+                    <input type="text" id="doc-phone" required placeholder="+998 91 555-44-33" class="w-full bg-white border border-sky-300 rounded-xl px-3.5 py-2.5 text-slate-800 shadow-inner">
+                </div>
+                <div>
+                    <label class="block text-slate-700 font-bold mb-1">Klinika / Shifoxona</label>
+                    <input type="text" id="doc-clinic" required placeholder="Toshkent 1-son shahar shifoxonasi" class="w-full bg-white border border-sky-300 rounded-xl px-3.5 py-2.5 text-slate-800 shadow-inner">
+                </div>
+                <button type="submit" class="w-full sky-gradient text-white font-bold py-3 rounded-xl shadow-lg mt-2">
+                    Shifokorni Saqlash
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- AUDIO NOTIFICATION -->
+    <audio id="reminder-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <!-- JAVASCRIPT LOGIC (100% ISHLAYDIGAN MANTOQIY KOD) -->
+    <script>
+        const PROFILES_LIST_KEY = 'med_eslatma_all_profiles_v10';
+        const ACTIVE_PROFILE_KEY = 'med_eslatma_active_profile_id_v10';
+
+        const defaultMedicines = [
+            { id: 'm1', name: 'Enap 10mg (Qon bosimi)', dosage: '1 tabletka', time: '08:00', code: 'Har kuni (1-0-1)', instruction: 'Ovqatdan keyin 🥣', stock: 24, takenToday: true, icon: 'fa-tablets' },
+            { id: 'm2', name: 'Aspirin Cardio', dosage: '1 tabletka', time: '13:00', code: 'Har kuni (1-0-1)', instruction: 'Ovqat mahali 🍽️', stock: 15, takenToday: false, icon: 'fa-capsules' },
+            { id: 'm3', name: 'Pancreatin (Hazm uchun)', dosage: '2 tabletka', time: '19:00', code: 'Har kuni (1-0-1)', instruction: 'Ovqatdan keyin 🥣', stock: 4, takenToday: false, icon: 'fa-tablets' },
+            { id: 'm4', name: 'Glycine (Tinchlantiruvchi)', dosage: '1 tabletka', time: '21:30', code: 'Kunora / Kunga kun (1-0-0)', instruction: 'Uyqudan oldin 🌙', stock: 30, takenToday: false, icon: 'fa-tablets' }
+        ];
+
+        const defaultDoctors = [
+            { id: 'd1', name: 'Prof. Alisher Karimov', spec: 'Oliy toifali Kardiolog', phone: '+998 90 987-65-43', clinic: 'Respublika Kardiologiya Markazi' },
+            { id: 'd2', name: 'Dr. Zulfiya Rahimova', spec: 'Endokrinolog (Qand diabeti)', phone: '+998 93 333-22-11', clinic: 'Toshkent Endokrinologiya Dispanseri' }
+        ];
+
+        const defaultVitals = [
+            { id: 'v1', date: 'Bugun, 08:30', type: 'Qon bosimi', value: '125/82 mm rt.st', note: 'Ertalabki normal holat' },
+            { id: 'v2', date: 'Kecha, 18:00', type: 'Qand miqdori', value: '5.8 mmol/L', note: 'Ovqatdan so‘ng' }
+        ];
+
+        const defaultHistory = [
+            { id: 'h1', date: 'Bugun, 08:00', name: 'Enap 10mg (Qon bosimi)', dosage: '1 tabletka', code: 'Har kuni (1-0-1)', status: 'Vaqtida ichildi ✅' },
+            { id: 'h2', date: 'Kecha, 21:30', name: 'Glycine', dosage: '1 tabletka', code: 'Kunora / Kunga kun (1-0-0)', status: 'Vaqtida ichildi ✅' }
+        ];
+
+        const drugPresets = {
+            "Enap 10mg (Qon bosimi uchun)": { dosage: "1 tabletka", icon: "fa-tablets", code: "Har kuni (1-0-1)" },
+            "Aspirin Cardio 100mg (Qon suyultiruvchi)": { dosage: "1 tabletka", icon: "fa-capsules", code: "Har kuni (1-0-1)" },
+            "Pancreatin (Hazm qilish uchun)": { dosage: "2 tabletka", icon: "fa-tablets", code: "Har kuni (1-0-1)" },
+            "Glycine (Tinchlantiruvchi)": { dosage: "1 tabletka", icon: "fa-tablets", code: "Har kuni (1-0-1)" },
+            "Metformin 850mg (Qand diabetiga)": { dosage: "1 tabletka", icon: "fa-tablets", code: "Har kuni (1-0-1)" },
+            "Amlodipine 5mg (Qon bosimiga)": { dosage: "1 tabletka", icon: "fa-tablets", code: "Har kuni (1-0-1)" },
+            "Magne B6 (Asab va yurak uchun)": { dosage: "2 tabletka", icon: "fa-capsules", code: "Faqat toq kunlari" },
+            "Concor 5mg (Yurak urishi uchun)": { dosage: "1 tabletka", icon: "fa-tablets", code: "Har kuni (1-0-1)" },
+            "Omeprazol 20mg (Oshqozon uchun)": { dosage: "1 kapsula", icon: "fa-capsules", code: "Kunora / Kunga kun (1-0-0)" },
+            "Valerianka (Tinchlantiruvchi sirop)": { dosage: "1 osh qoshiq (10ml)", icon: "fa-vial", code: "Zarurat bo'lganda (PRN)" },
+            "Paracetamol 500mg (Isitma va og'riq)": { dosage: "1 tabletka", icon: "fa-tablets", code: "Zarurat bo'lganda (PRN)" },
+            "Ibuprofen 400mg (Og'riq qoldiruvchi)": { dosage: "1 tabletka", icon: "fa-tablets", code: "Zarurat bo'lganda (PRN)" }
+        };
+
+        let state = {};
+
+        function getAllProfiles() {
+            try {
+                const saved = localStorage.getItem(PROFILES_LIST_KEY);
+                if (saved) return JSON.parse(saved);
+            } catch(e) {}
+            const initial = [
+                { id: 'profile_1', name: "Omonjon Bobo", details: "74 yosh" },
+                { id: 'profile_2', name: "Salomat Momo", details: "70 yosh" }
+            ];
+            localStorage.setItem(PROFILES_LIST_KEY, JSON.stringify(initial));
+            return initial;
+        }
+
+        function getActiveProfileId() {
+            let active = localStorage.getItem(ACTIVE_PROFILE_KEY);
+            if (!active) {
+                active = 'profile_1';
+                localStorage.setItem(ACTIVE_PROFILE_KEY, active);
+            }
+            return active;
+        }
+
+        function setActiveProfileId(id) {
+            localStorage.setItem(ACTIVE_PROFILE_KEY, id);
+            state = loadActiveProfileState();
+            renderAll();
+            updateSidebarProfileUI();
+            showToast("Bemor profili almashtirildi!", "success");
+        }
+
+        function getProfileSpecificKey(profileId) {
+            return `med_eslatma_data_${profileId}_v10`;
+        }
+
+        function loadActiveProfileState() {
+            const pId = getActiveProfileId();
+            const key = getProfileSpecificKey(pId);
+            try {
+                const saved = localStorage.getItem(key);
+                if (saved) return JSON.parse(saved);
+            } catch(e) {}
+            const defaultState = {
+                medicines: JSON.parse(JSON.stringify(defaultMedicines)),
+                doctors: JSON.parse(JSON.stringify(defaultDoctors)),
+                vitals: JSON.parse(JSON.stringify(defaultVitals)),
+                history: JSON.parse(JSON.stringify(defaultHistory))
+            };
+            localStorage.setItem(key, JSON.stringify(defaultState));
+            return defaultState;
+        }
+
+        function saveState() {
+            const pId = getActiveProfileId();
+            const key = getProfileSpecificKey(pId);
+            try {
+                localStorage.setItem(key, JSON.stringify(state));
+            } catch(e) { console.error(e); }
+        }
+
+        function updateSidebarProfileUI() {
+            const pId = getActiveProfileId();
+            const profiles = getAllProfiles();
+            const current = profiles.find(p => p.id === pId) || profiles[0];
+            
+            const nameEl = document.getElementById('sidebar-profile-name');
+            const avatarEl = document.getElementById('sidebar-avatar');
+            const relDisplay = document.getElementById('relative-profile-display');
+
+            if (nameEl) nameEl.textContent = `${current.name} (${current.details})`;
+            if (avatarEl) {
+                const initials = current.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+                avatarEl.textContent = initials || 'BP';
+            }
+            if (relDisplay) relDisplay.textContent = `${current.name} (${current.details})`;
+        }
+
+        function openProfileModal() {
+            renderProfilesModalList();
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
+        }
+
+        function renderProfilesModalList() {
+            const container = document.getElementById('profiles-list-container');
+            const activeId = getActiveProfileId();
+            const profiles = getAllProfiles();
+
+            container.innerHTML = profiles.map(p => `
+                <div class="p-3.5 rounded-2xl bg-white border ${p.id === activeId ? 'border-sky-500 bg-sky-50' : 'border-sky-200'} flex items-center justify-between text-xs shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl ${p.id === activeId ? 'sky-gradient text-white' : 'bg-sky-100 text-sky-700'} flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">${p.name}</div>
+                            <div class="text-slate-500">${p.details} ${p.id === activeId ? '• (Faol profil)' : ''}</div>
+                        </div>
+                    </div>
+                    ${p.id !== activeId ? `
+                        <button onclick="setActiveProfileId('${p.id}'); closeProfileModal();" class="px-3 py-1.5 rounded-xl sky-gradient text-white font-bold shadow-md">
+                            Tanlash
+                        </button>
+                    ` : `
+                        <span class="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-700 font-bold">Faol</span>
+                    `}
+                </div>
+            `).join('');
+        }
+
+        function handleCreateNewProfile(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-p-name').value.trim();
+            const details = document.getElementById('new-p-age').value.trim();
+            if(!name) return;
+
+            const newId = 'profile_' + Date.now();
+            const profiles = getAllProfiles();
+            profiles.push({ id: newId, name, details });
+            localStorage.setItem(PROFILES_LIST_KEY, JSON.stringify(profiles));
+
+            setActiveProfileId(newId);
+            closeProfileModal();
+            e.target.reset();
+            showToast(`Yangi profil "${name}" ochildi va faollashtirildi!`);
+        }
+
+        function handleSelectDrug(val) {
+            if (drugPresets[val]) {
+                document.getElementById('med-dosage').value = drugPresets[val].dosage;
+                document.getElementById('med-icon').value = drugPresets[val].icon;
+                if(drugPresets[val].code) {
+                    document.getElementById('med-schedule-code').value = drugPresets[val].code;
+                }
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'border-sky-300 bg-white text-sky-900 shadow-lg',
+                warning: 'border-amber-300 bg-white text-amber-900 shadow-lg',
+                error: 'border-rose-300 bg-white text-rose-900 shadow-lg'
+            };
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3.5 rounded-2xl border animate-pop ${colors[type]}`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check text-sky-600' : 'fa-triangle-exclamation text-amber-600'} text-lg"></i><div class="text-xs font-bold leading-snug">${message}</div>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 3500);
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.className = 'nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold sky-gradient text-white shadow-lg shadow-sky-500/25 transition-all';
+                } else {
+                    btn.className = 'nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-white/60 transition-all';
+                }
+            });
+
+            document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.className = 'mobile-nav-btn flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-bold text-sky-800 bg-sky-200';
+                } else {
+                    btn.className = 'mobile-nav-btn flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-semibold text-slate-600';
+                }
+            });
+
+            renderAll();
+        }
+
+        function renderSchedule() {
+            const container = document.getElementById('medication-cards-container');
+            if(!container) return;
+            const takenCount = state.medicines.filter(m => m.takenToday).length;
+            const total = state.medicines.length;
+            const remaining = total - takenCount;
+            const pct = total > 0 ? Math.round((takenCount / total) * 100) : 0;
+
+            document.getElementById('stat-total-meds').textContent = `${total} ta`;
+            document.getElementById('stat-taken-meds').textContent = `${takenCount} ta`;
+            document.getElementById('stat-remaining-meds').textContent = `${remaining} ta`;
+
+            document.getElementById('schedule-progress-text').textContent = `${takenCount} / ${total} (${pct}%)`;
+            document.getElementById('schedule-progress-bar').style.width = `${pct}%`;
+
+            if (total === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-slate-600 text-sm glass-card rounded-2xl border-sky-300">Hozircha faol profil uchun dori jadvali mavjud emas.</div>`;
+                return;
+            }
+
+            container.innerHTML = state.medicines.map(m => `
+                <div class="glass-card glass-card-hover p-5 sm:p-6 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-sky-300 ${m.takenToday ? 'opacity-70 bg-white/50' : ''}">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl ${m.takenToday ? 'bg-emerald-100 text-emerald-600 border-emerald-300' : 'bg-sky-100 text-sky-600 border-sky-300'} flex items-center justify-center text-2xl shrink-0 border shadow-sm">
+                            <i class="fa-solid ${m.icon || 'fa-tablets'}"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-display font-extrabold text-lg text-slate-800">${m.name}</span>
+                                <span class="text-xs px-2.5 py-0.5 rounded-full font-bold ${m.takenToday ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${m.takenToday ? 'Ichildi' : 'Kutilmoqda'}</span>
+                            </div>
+                            <div class="text-xs text-slate-600 font-medium mt-1">
+                                💊 Doza: <strong class="text-slate-800">${m.dosage}</strong> • 🗓️ Rejim: <strong class="text-sky-700">${m.code || 'Har kuni'}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between sm:justify-end gap-3 pt-3 sm:pt-0 border-t sm:border-t-0 border-sky-200">
+                        <div class="text-right">
+                            <div class="text-[11px] text-slate-500 font-bold">Vaqti:</div>
+                            <div class="font-display font-black text-lg text-sky-700"><i class="fa-regular fa-clock mr-1"></i>${m.time}</div>
+                        </div>
+                        ${m.takenToday ? `
+                            <button onclick="toggleTakeMed('${m.id}')" class="px-4 py-2.5 rounded-xl bg-emerald-100 text-emerald-800 font-bold text-xs border border-emerald-300 shadow-sm">
+                                <i class="fa-solid fa-circle-check mr-1"></i>Qabul qilindi
+                            </button>
+                        ` : `
+                            <button onclick="toggleTakeMed('${m.id}')" class="px-5 py-3 rounded-xl sky-gradient hover:opacity-95 text-white font-extrabold text-sm shadow-lg shadow-sky-500/25 transition-all">
+                                Ichdim 👍
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleTakeMed(id) {
+            const med = state.medicines.find(m => m.id === id);
+            if (!med) return;
+            med.takenToday = !med.takenToday;
+
+            if (med.takenToday) {
+                if (med.stock && med.stock > 0) med.stock -= 1;
+                const now = new Date();
+                const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                state.history.unshift({
+                    id: 'h' + Date.now(),
+                    date: `Bugun, ${timeStr}`,
+                    name: med.name,
+                    dosage: med.dosage,
+                    code: med.code || 'Har kuni',
+                    status: 'Vaqtida ichildi ✅'
+                });
+                showToast(`Barakalla! "${med.name}" qabul qilindi.`);
+            }
+
+            saveState();
+            renderAll();
+        }
+
+        function renderStockInventory() {
+            const container = document.getElementById('stock-inventory-list');
+            if(!container) return;
+            if(!state.medicines || state.medicines.length === 0) {
+                container.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs">Dorilar yo'q.</div>`;
+                return;
+            }
+            container.innerHTML = state.medicines.map(m => {
+                const isLow = m.stock <= 5;
+                return `
+                    <div class="p-3.5 rounded-2xl bg-white border border-sky-200 flex items-center justify-between text-xs shadow-sm">
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">${m.name}</div>
+                            <div class="text-slate-500">Doza: ${m.dosage} • ${m.code || 'Har kuni'}</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-xs ${isLow ? 'text-rose-600 animate-pulse' : 'text-sky-700'}">${m.stock || 0} dona</span>
+                            <button onclick="editMedicine('${m.id}')" class="w-7 h-7 rounded-lg bg-sky-100 hover:bg-sky-500 text-sky-700 hover:text-white flex items-center justify-center transition-all">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </button>
+                            <button onclick="deleteMedicine('${m.id}')" class="w-7 h-7 rounded-lg bg-rose-100 hover:bg-rose-500 text-rose-700 hover:text-white flex items-center justify-center transition-all">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function editMedicine(id) {
+            const med = state.medicines.find(m => m.id === id);
+            if (!med) return;
+
+            document.getElementById('edit-med-id').value = med.id;
+            document.getElementById('med-name').value = med.name;
+            document.getElementById('med-dosage').value = med.dosage;
+            document.getElementById('med-time').value = med.time;
+            document.getElementById('med-schedule-code').value = med.code || 'Har kuni (1-0-1)';
+            document.getElementById('med-instruction').value = med.instruction;
+            document.getElementById('med-stock').value = med.stock || 30;
+            document.getElementById('med-icon').value = med.icon || 'fa-tablets';
+
+            document.getElementById('medicine-form-title').textContent = "Dorini Tahrirlash";
+            document.getElementById('btn-save-medicine').innerHTML = '<i class="fa-solid fa-pen-to-square mr-2"></i>O‘zgarishlarni Saqlash';
+            document.getElementById('btn-cancel-med-edit').classList.remove('hidden');
+
+            switchTab('add-medicine');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetMedicineForm() {
+            document.getElementById('edit-med-id').value = '';
+            document.getElementById('form-medicine').reset();
+            document.getElementById('med-stock').value = '30';
+
+            document.getElementById('medicine-form-title').textContent = "Dori Qo'shish va Qoldiq Nazorati";
+            document.getElementById('btn-save-medicine').innerHTML = '<i class="fa-solid fa-plus-circle mr-2"></i>Jadvalga saqlash';
+            document.getElementById('btn-cancel-med-edit').classList.add('hidden');
+        }
+
+        function deleteMedicine(id) {
+            if (confirm("Haqiqatdan ham ushbu dorini o'chirmoqchimisiz?")) {
+                state.medicines = state.medicines.filter(m => m.id !== id);
+                saveState();
+                renderAll();
+                showToast("Dori jadvaldan o'chirildi.", 'warning');
+            }
+        }
+
+        function handleSaveMedicineForm(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-med-id').value;
+            const name = document.getElementById('med-name').value.trim();
+            const dosage = document.getElementById('med-dosage').value;
+            const time = document.getElementById('med-time').value;
+            const code = document.getElementById('med-schedule-code').value;
+            const instruction = document.getElementById('med-instruction').value;
+            const stock = parseInt(document.getElementById('med-stock').value, 10) || 30;
+            const icon = document.getElementById('med-icon').value;
+
+            if (editId) {
+                const med = state.medicines.find(m => m.id === editId);
+                if (med) {
+                    med.name = name; med.dosage = dosage; med.time = time;
+                    med.code = code; med.instruction = instruction; med.stock = stock; med.icon = icon;
+                    showToast(`"${name}" dori ma'lumotlari tahrirlandi!`);
+                }
+            } else {
+                state.medicines.push({ id: 'm' + Date.now(), name, dosage, time, code, instruction, stock, icon, takenToday: false });
+                showToast(`Yangi dori "${name}" jadvalga qo‘shildi!`);
+            }
+
+            resetMedicineForm();
+            saveState();
+            renderAll();
+            switchTab('schedule');
+        }
+
+        function renderDoctors() {
+            const grid = document.getElementById('doctors-grid');
+            if(!grid) return;
+            if(!state.doctors || state.doctors.length === 0) {
+                grid.innerHTML = `<div class="col-span-full p-8 text-center text-slate-500 text-sm glass-card rounded-2xl border-sky-300">Shifokorlar qo'shilmagan.</div>`;
+                return;
+            }
+            grid.innerHTML = state.doctors.map(d => `
+                <div class="glass-card glass-card-hover rounded-3xl p-6 flex flex-col justify-between border-sky-300 shadow-sm">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center text-xl font-bold border border-sky-300 shadow-sm">
+                                    <i class="fa-solid fa-user-doctor"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-base text-slate-800">${d.name}</h3>
+                                    <p class="text-xs text-sky-700 font-bold">${d.spec}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button onclick="editDoctor('${d.id}')" class="w-8 h-8 rounded-lg bg-sky-100 hover:bg-sky-500 text-sky-700 hover:text-white flex items-center justify-center transition-all">
+                                    <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                </button>
+                                <button onclick="deleteDoctor('${d.id}')" class="w-8 h-8 rounded-lg bg-rose-100 hover:bg-rose-500 text-rose-700 hover:text-white flex items-center justify-center transition-all">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-xs text-slate-700 bg-white p-3.5 rounded-xl mb-4 border border-sky-200">
+                            <div><i class="fa-solid fa-hospital text-sky-600 mr-2"></i>${d.clinic}</div>
+                            <div><i class="fa-solid fa-phone text-sky-600 mr-2"></i>${d.phone}</div>
+                        </div>
+                    </div>
+                    <a href="tel:${d.phone}" class="w-full text-center py-2.5 rounded-xl text-xs font-bold bg-sky-100 hover:bg-sky-500 text-sky-800 hover:text-white border border-sky-300 transition-all shadow-sm">
+                        <i class="fa-solid fa-phone-volume mr-1.5"></i>Shifokorga qo'ng'iroq qilish
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        function openDoctorModal() { 
+            document.getElementById('edit-doc-id').value = '';
+            document.getElementById('doc-modal-title').textContent = 'Yangi Shifokor Qo‘shish';
+            document.getElementById('doc-name').value = '';
+            document.getElementById('doc-spec').value = '';
+            document.getElementById('doc-phone').value = '';
+            document.getElementById('doc-clinic').value = '';
+            document.getElementById('doctor-modal').classList.remove('hidden'); 
+        }
+
+        function closeDoctorModal() { document.getElementById('doctor-modal').classList.add('hidden'); }
+
+        function editDoctor(id) {
+            const doc = state.doctors.find(d => d.id === id);
+            if (!doc) return;
+
+            document.getElementById('edit-doc-id').value = doc.id;
+            document.getElementById('doc-modal-title').textContent = 'Shifokorni Tahrirlash';
+            document.getElementById('doc-name').value = doc.name;
+            document.getElementById('doc-spec').value = doc.spec;
+            document.getElementById('doc-phone').value = doc.phone;
+            document.getElementById('doc-clinic').value = doc.clinic;
+            document.getElementById('doctor-modal').classList.remove('hidden');
+        }
+
+        function deleteDoctor(id) {
+            if (confirm("Shifokor ma'lumotlarini o'chirmoqchimisiz?")) {
+                state.doctors = state.doctors.filter(d => d.id !== id);
+                saveState();
+                renderDoctors();
+                showToast("Shifokor o'chirildi.", 'warning');
+            }
+        }
+
+        function handleSaveDoctorForm(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-doc-id').value;
+            const name = document.getElementById('doc-name').value.trim();
+            const spec = document.getElementById('doc-spec').value.trim();
+            const phone = document.getElementById('doc-phone').value.trim();
+            const clinic = document.getElementById('doc-clinic').value.trim();
+
+            if (editId) {
+                const doc = state.doctors.find(d => d.id === editId);
+                if (doc) {
+                    doc.name = name; doc.spec = spec; doc.phone = phone; doc.clinic = clinic;
+                    showToast(`Shifokor ${name} ma'lumotlari tahrirlandi!`);
+                }
+            } else {
+                state.doctors.push({ id: 'd' + Date.now(), name, spec, phone, clinic });
+                showToast(`Shifokor ${name} muvaffaqiyatli qo‘shildi!`);
+            }
+
+            saveState();
+            renderDoctors();
+            closeDoctorModal();
+            e.target.reset();
+        }
+
+        function handleAddVital(e) {
+            e.preventDefault();
+            const type = document.getElementById('vital-type').value;
+            const value = document.getElementById('vital-value').value.trim();
+            const note = document.getElementById('vital-note').value.trim();
+            const now = new Date();
+            const dateStr = `Bugun, ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+            state.vitals.unshift({ id: 'v' + Date.now(), date: dateStr, type, value, note });
+            saveState();
+            renderVitals();
+            showToast(`Salomatlik ko'rsatkichi (${type}) saqlandi!`);
+            e.target.reset();
+        }
+
+        function renderVitals() {
+            const container = document.getElementById('vitals-history-list');
+            if(!container) return;
+            if (!state.vitals || state.vitals.length === 0) {
+                container.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs">O'lchovlar yo'q.</div>`;
+                return;
+            }
+            container.innerHTML = state.vitals.map(v => `
+                <div class="p-3.5 rounded-2xl bg-white border border-sky-200 flex items-center justify-between text-xs shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-base">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">${v.type}: <span class="text-sky-700">${v.value}</span></div>
+                            <div class="text-slate-500">${v.date} • ${v.note || 'Normal'}</div>
+                        </div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold">Norma ✅</span>
+                </div>
+            `).join('');
+        }
+
+        function renderRelativeLog() {
+            const container = document.getElementById('relative-audit-log');
+            if(!container) return;
+            if(!state.history || state.history.length === 0) {
+                container.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs">Jurnal bo'sh.</div>`;
+                return;
+            }
+            container.innerHTML = state.history.map(h => `
+                <div class="p-3.5 rounded-2xl bg-white border border-sky-200 flex items-center justify-between text-xs shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-notes-medical"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">${h.name} (${h.dosage})</div>
+                            <div class="text-slate-500">${h.date} • ${h.code || 'Har kuni'}</div>
+                        </div>
+                    </div>
+                    <span class="font-bold px-2.5 py-1 rounded-full bg-sky-100 text-sky-800 border border-sky-300">${h.status}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById('history-table-body');
+            if(!tbody) return;
+            const query = (document.getElementById('history-search')?.value || '').toLowerCase();
+            const filtered = state.history.filter(h => h.name.toLowerCase().includes(query));
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-500 text-xs">Tarix topilmadi</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(h => `
+                <tr class="hover:bg-sky-50/60">
+                    <td class="py-3.5 px-5 font-bold text-slate-800 text-xs">${h.date}</td>
+                    <td class="py-3.5 px-5 font-semibold text-sky-800 text-sm">${h.name}</td>
+                    <td class="py-3.5 px-5 text-slate-600 text-xs">${h.dosage}</td>
+                    <td class="py-3.5 px-5 text-slate-600 text-xs font-bold">${h.code || 'Har kuni'}</td>
+                    <td class="py-3.5 px-5 font-bold text-xs text-emerald-700">${h.status}</td>
+                </tr>
+            `).join('');
+        }
+
+        function triggerEmergencyAlert() {
+            showToast('🚨 SOS Signal: Mas\'ul qarindosh telefoniga xabar yuborildi!', 'warning');
+            try {
+                const audio = document.getElementById('reminder-sound');
+                if (audio) audio.play();
+            } catch(e) {}
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const clockEl = document.getElementById('current-clock');
+            if (clockEl) clockEl.textContent = now.toLocaleTimeString();
+        }
+
+        function renderAll() {
+            renderSchedule();
+            renderStockInventory();
+            renderDoctors();
+            renderVitals();
+            renderRelativeLog();
+            renderHistory();
+            updateSidebarProfileUI();
+        }
+
+        // DOM Yuklangandan so'ng xatoliklarsiz ishga tushirish
+        document.addEventListener('DOMContentLoaded', () => {
+            state = loadActiveProfileState();
+            switchTab('schedule');
+            updateClock();
+            setInterval(updateClock, 1000);
+        });
+    </script>
+</body>
+</html>
