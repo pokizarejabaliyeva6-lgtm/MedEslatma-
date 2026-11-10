@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html lang="uz" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoCollect — Chiqindini topshirishni rag‘batlantirish platformasi</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        eco: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                            950: '#022c22',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shimmer': 'shimmer 2.5s linear infinite',
+                        'pop': 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' },
+                        },
+                        pop: {
+                            '0%': { transform: 'scale(0.9)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Glassmorphism & Scrollbars */
+        body {
+            background-color: #04130e;
+            color: #ecfdf5;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(6, 45, 33, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(52, 211, 153, 0.16);
+        }
+        .glass-card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card-hover:hover {
+            transform: translateY(-4px);
+            border-color: rgba(52, 211, 153, 0.45);
+            box-shadow: 0 12px 30px -10px rgba(16, 185, 129, 0.25);
+        }
+        .eco-gradient {
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+        }
+        .gold-gradient {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+        }
+        /* Animated background orbs */
+        .bg-orb-1 {
+            position: fixed;
+            top: -10%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(16,185,129,0.15) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        .bg-orb-2 {
+            position: fixed;
+            bottom: -15%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(52,211,153,0.12) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #022c22;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #065f46;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #10b981;
+        }
+        /* Map Pattern Background */
+        .map-grid {
+            background-color: #031c14;
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.07) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        .pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            80%, 100% { transform: scale(2.2); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col lg:flex-row selection:bg-eco-500 selection:text-white">
+
+    <!-- Background Orbs -->
+    <div class="bg-orb-1"></div>
+    <div class="bg-orb-2"></div>
+
+    <!-- TOAST NOTIFICATIONS CONTAINER -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- DESKTOP SIDEBAR -->
+    <aside class="hidden lg:flex flex-col w-72 glass-card border-r border-eco-500/20 fixed h-full z-30 justify-between p-6">
+        <div>
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3 mb-8 cursor-pointer" onclick="switchTab('dashboard')">
+                <div class="w-11 h-11 rounded-2xl eco-gradient flex items-center justify-center shadow-lg shadow-eco-500/30 animate-float">
+                    <i class="fa-solid fa-leaf text-white text-xl"></i>
+                </div>
+                <div>
+                    <span class="font-display font-extrabold text-2xl tracking-tight text-white">Eco<span class="text-eco-400">Collect</span></span>
+                    <span class="block text-[11px] text-eco-300/80 uppercase tracking-widest font-semibold">GreenTech & Bonus</span>
+                </div>
+            </div>
+
+            <!-- User Mini Status Card -->
+            <div class="p-4 rounded-2xl bg-eco-900/60 border border-eco-500/20 mb-6 relative overflow-hidden">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="relative">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-eco-600 to-teal-400 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                            S
+                        </div>
+                        <span id="sidebar-level-badge" class="absolute -bottom-1 -right-1 bg-amber-500 text-slate-950 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border border-slate-900">
+                            LVL 4
+                        </span>
+                    </div>
+                    <div class="overflow-hidden">
+                        <h4 class="font-bold text-white text-sm truncate">Sardorbek Aliyev</h4>
+                        <p id="sidebar-rank-title" class="text-xs text-eco-300 font-medium">Yashil Qahramon</p>
+                    </div>
+                </div>
+                <!-- Mini Balance -->
+                <div class="flex items-center justify-between bg-slate-950/50 rounded-xl px-3 py-2 border border-eco-500/10">
+                    <span class="text-xs text-slate-300">Eko-Balans:</span>
+                    <div class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-coins text-amber-400 text-sm"></i>
+                        <span id="sidebar-points" class="font-display font-bold text-white text-sm">2,450</span>
+                        <span class="text-[10px] text-amber-400 font-semibold">BALL</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="space-y-1.5" id="desktop-nav">
+                <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>Asosiy Panel</span>
+                </button>
+                <button onclick="switchTab('submit')" data-tab="submit" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-recycle w-5 text-center"></i>
+                    <span>Chiqindi Topshirish</span>
+                    <span class="ml-auto bg-eco-500/20 text-eco-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-eco-500/30">+Ball</span>
+                </button>
+                <button onclick="switchTab('points')" data-tab="points" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-map-location-dot w-5 text-center"></i>
+                    <span>Topshirish Punktlari</span>
+                </button>
+                <button onclick="switchTab('market')" data-tab="market" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-gift w-5 text-center"></i>
+                    <span>Bonus va Eko-Market</span>
+                </button>
+                <button onclick="switchTab('history')" data-tab="history" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i>
+                    <span>Topshirish Tarixi</span>
+                </button>
+                <div class="pt-3 mt-3 border-t border-eco-500/15">
+                    <button onclick="switchTab('admin')" data-tab="admin" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                        <i class="fa-solid fa-shield-halved w-5 text-center text-amber-400"></i>
+                        <span>Admin Boshqaruv</span>
+                        <span id="admin-pending-badge" class="ml-auto bg-amber-500 text-slate-950 text-[10px] font-extrabold px-2 py-0.5 rounded-full">2</span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Daily Eco Quote / Footer -->
+        <div class="p-4 rounded-2xl bg-gradient-to-br from-eco-900/80 to-slate-900/90 border border-eco-500/20">
+            <div class="flex items-center gap-2 text-eco-400 text-xs font-bold mb-1">
+                <i class="fa-solid fa-seedling"></i>
+                <span>Eko-Eslatma</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+                1 tonna qayta ishlangan plastik 16.3 barrel neftni va 5,774 kVt/soat elektr energiyasini tejaydi!
+            </p>
+        </div>
+    </aside>
+
+    <!-- MOBILE HEADER -->
+    <header class="lg:hidden sticky top-0 z-30 glass-card border-b border-eco-500/20 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2.5" onclick="switchTab('dashboard')">
+            <div class="w-9 h-9 rounded-xl eco-gradient flex items-center justify-center shadow-md">
+                <i class="fa-solid fa-leaf text-white"></i>
+            </div>
+            <div>
+                <span class="font-display font-extrabold text-lg text-white">Eco<span class="text-eco-400">Collect</span></span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <!-- Mobile Points Pill -->
+            <div onclick="switchTab('market')" class="flex items-center gap-1.5 bg-eco-950/90 border border-amber-500/30 px-3 py-1.5 rounded-full cursor-pointer">
+                <i class="fa-solid fa-coins text-amber-400 text-xs"></i>
+                <span id="mobile-points" class="font-display font-bold text-white text-xs">2,450</span>
+            </div>
+            <!-- Admin Shortcut Mobile -->
+            <button onclick="switchTab('admin')" class="relative w-9 h-9 rounded-xl bg-eco-900/70 border border-eco-500/30 flex items-center justify-center text-amber-400">
+                <i class="fa-solid fa-shield-halved text-sm"></i>
+                <span id="mobile-admin-badge" class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[9px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center">2</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 lg:ml-72 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-12 max-w-7xl w-full mx-auto">
+
+        <!-- TOP BAR (Desktop Quick Actions & Promo Code) -->
+        <div class="hidden sm:flex items-center justify-between mb-8 glass-card px-6 py-4 rounded-2xl">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 text-sm text-eco-200">
+                    <span class="w-2.5 h-2.5 rounded-full bg-eco-400 animate-ping"></span>
+                    <span class="font-medium">Toshkent bo‘yicha <strong id="top-active-points" class="text-white">6 ta</strong> eko-punkt faol ishlamoqda</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="openQrModal()" class="flex items-center gap-2 bg-eco-900/80 hover:bg-eco-800 text-eco-200 border border-eco-500/30 px-4 py-2 rounded-xl text-xs font-semibold transition-all">
+                    <i class="fa-solid fa-qrcode text-eco-400"></i>
+                    <span>Smart-Box Kod kiritish</span>
+                </button>
+                <button onclick="switchTab('submit')" class="flex items-center gap-2 eco-gradient hover:opacity-95 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg shadow-eco-600/30 transition-all">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Chiqindi topshirish</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             TAB 1: FOYDALANUVCHI DASHBOARD (ASOSIY)
+             ========================================== -->
+        <section id="tab-dashboard" class="tab-section space-y-6 animate-pop">
+            
+            <!-- Hero Gamification Banner -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Level & XP Card (2 cols) -->
+                <div class="lg:col-span-2 glass-card rounded-3xl p-6 sm:p-8 relative overflow-hidden flex flex-col justify-between">
+                    <div class="absolute -right-12 -bottom-12 opacity-10 pointer-events-none">
+                        <i class="fa-solid fa-earth-asia text-[220px] text-eco-400"></i>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                        <div>
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-eco-500/20 border border-eco-400/30 text-eco-300 text-xs font-bold mb-2">
+                                <i class="fa-solid fa-fire text-amber-400"></i>
+                                <span>5 kunlik uzluksiz faollik (Streak!)</span>
+                            </div>
+                            <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-white">
+                                Xush kelibsiz, <span class="text-transparent bg-clip-text bg-gradient-to-r from-eco-300 to-amber-300">Sardorbek!</span>
+                            </h1>
+                            <p class="text-sm text-slate-300 mt-1">Tabiatni asrashdagi hissangiz uchun rahmat. Keyingi darajaga oz qoldi!</p>
+                        </div>
+                        <div class="flex items-center gap-3 bg-slate-950/60 p-3.5 rounded-2xl border border-eco-500/20 shrink-0">
+                            <div class="w-12 h-12 rounded-xl gold-gradient flex items-center justify-center text-slate-950 text-xl font-black shadow-lg">
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400">Joriy maqomingiz</div>
+                                <div id="dash-level-title" class="font-display font-bold text-white text-base">Yashil Qahramon</div>
+                                <div id="dash-level-num" class="text-xs text-amber-400 font-bold">Level 4 • 2,450 XP</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- XP Progress Bar -->
+                    <div class="bg-slate-950/50 p-4 rounded-2xl border border-eco-500/15">
+                        <div class="flex justify-between text-xs font-semibold mb-2">
+                            <span class="text-eco-300">Level 4 progressi</span>
+                            <span id="xp-progress-text" class="text-white">2,450 / 3,000 XP (82%)</span>
+                        </div>
+                        <div class="w-full h-3.5 bg-slate-800 rounded-full overflow-hidden p-0.5">
+                            <div id="xp-progress-bar" class="h-full rounded-full bg-gradient-to-r from-eco-500 via-teal-400 to-amber-400 transition-all duration-700" style="width: 82%"></div>
+                        </div>
+                        <div class="flex justify-between items-center mt-2.5 text-[11px] text-slate-400">
+                            <span>Keyingi maqom: <strong class="text-eco-300">Eko-Elchi (Level 5)</strong></span>
+                            <button onclick="openQrModal()" class="text-amber-400 hover:underline font-semibold sm:hidden">
+                                <i class="fa-solid fa-qrcode mr-1"></i>Kod kiritish
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Wallet / Balance Card -->
+                <div class="glass-card rounded-3xl p-6 flex flex-col justify-between bg-gradient-to-b from-eco-900/60 to-slate-950/80 border border-amber-500/25">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs uppercase tracking-wider font-bold text-amber-300/90">Mening Eko-Hamyonim</span>
+                            <span class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400">
+                                <i class="fa-solid fa-wallet"></i>
+                            </span>
+                        </div>
+                        <div class="flex items-baseline gap-2 my-2">
+                            <span id="dash-points" class="font-display text-4xl sm:text-5xl font-extrabold text-white">2,450</span>
+                            <span class="text-amber-400 font-bold text-sm">EKO-BALL</span>
+                        </div>
+                        <p class="text-xs text-slate-300">
+                            Taxminiy qiymati: <strong id="dash-uzs-value" class="text-eco-300">24,500 so‘m</strong> vaucher va xizmatlar
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5 mt-6">
+                        <button onclick="switchTab('submit')" class="eco-gradient hover:opacity-95 text-white py-3 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-eco-600/25 transition-all">
+                            <i class="fa-solid fa-recycle"></i>
+                            <span>Ball yig‘ish</span>
+                        </button>
+                        <button onclick="switchTab('market')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 py-3 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all">
+                            <i class="fa-solid fa-gift"></i>
+                            <span>Almashtirish</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 KPI Impact Stats -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-card glass-card-hover p-5 rounded-2xl">
+                    <div class="w-10 h-10 rounded-xl bg-eco-500/20 text-eco-400 flex items-center justify-center text-lg mb-3">
+                        <i class="fa-solid fa-weight-scale"></i>
+                    </div>
+                    <div class="text-xs text-slate-400">Topshirilgan chiqindi</div>
+                    <div class="font-display text-2xl font-extrabold text-white mt-0.5"><span id="stat-total-kg">48.5</span> <span class="text-sm font-normal text-eco-400">kg</span></div>
+                </div>
+
+                <div class="glass-card glass-card-hover p-5 rounded-2xl">
+                    <div class="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-lg mb-3">
+                        <i class="fa-solid fa-cloud-sun"></i>
+                    </div>
+                    <div class="text-xs text-slate-400">Saqlab qolingan CO₂</div>
+                    <div class="font-display text-2xl font-extrabold text-white mt-0.5"><span id="stat-co2">72.8</span> <span class="text-sm font-normal text-teal-400">kg</span></div>
+                </div>
+
+                <div class="glass-card glass-card-hover p-5 rounded-2xl">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg mb-3">
+                        <i class="fa-solid fa-tree"></i>
+                    </div>
+                    <div class="text-xs text-slate-400">Asrab qolingan daraxtlar</div>
+                    <div class="font-display text-2xl font-extrabold text-white mt-0.5"><span id="stat-trees">4</span> <span class="text-sm font-normal text-amber-400">tup</span></div>
+                </div>
+
+                <div class="glass-card glass-card-hover p-5 rounded-2xl">
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-lg mb-3">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+                    <div class="text-xs text-slate-400">Tasdiqlangan topshirishlar</div>
+                    <div class="font-display text-2xl font-extrabold text-white mt-0.5"><span id="stat-tx-count">12</span> <span class="text-sm font-normal text-purple-400">marta</span></div>
+                </div>
+            </div>
+
+            <!-- Eco-Challenges & Leaderboard Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Eco-Missiyalar (Challenges) -->
+                <div class="lg:col-span-2 glass-card rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-5">
+                        <div>
+                            <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-bolt text-amber-400"></i>
+                                <span>Haftalik Eko-Missiyalar</span>
+                            </h2>
+                            <p class="text-xs text-slate-400">Vazifalarni bajaring va qo‘shimcha bonus ballarga ega bo‘ling</p>
+                        </div>
+                        <span class="text-xs bg-eco-500/20 text-eco-300 px-3 py-1 rounded-full font-semibold">Yangilanish: 3 kun</span>
+                    </div>
+
+                    <div id="challenges-container" class="space-y-3.5">
+                        <!-- Dynamically populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Peshqadamlar Jadvali (Leaderboard) -->
+                <div class="glass-card rounded-3xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-5">
+                            <h2 class="font-display text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-crown text-amber-400"></i>
+                                <span>Top Eko-Faollar</span>
+                            </h2>
+                            <span class="text-[11px] text-eco-400 font-semibold">Toshkent sh.</span>
+                        </div>
+
+                        <div id="leaderboard-container" class="space-y-2.5">
+                            <!-- Dynamically populated via JS -->
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-eco-500/15 text-center">
+                        <p class="text-xs text-slate-400">Oy yakunida TOP-3 ishtirokchiga <strong class="text-amber-300">5,000 ball</strong> sovg‘a qilinadi!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 2: CHIQINDI TOPSHIRISH VA KALKULYATOR
+             ========================================== -->
+        <section id="tab-submit" class="tab-section hidden space-y-6 animate-pop">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-white">Chiqindi Topshirish va Ball Kalkulyatori</h1>
+                    <p class="text-sm text-slate-300">Chiqindi turini tanlang, vaznini kiriting va darhol ballarga ega bo‘ling</p>
+                </div>
+                <button onclick="openQrModal()" class="inline-flex items-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-4 py-2.5 rounded-xl text-xs font-bold transition-all self-start">
+                    <i class="fa-solid fa-qrcode"></i>
+                    <span>Smart-Box Promo-kodini kiritish</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left 2 Cols: Selection & Form -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Step 1: Select Waste Type -->
+                    <div class="glass-card rounded-3xl p-6">
+                        <label class="block font-display text-sm font-bold text-eco-300 uppercase tracking-wider mb-4">
+                            1. Chiqindi turini va tarifni tanlang
+                        </label>
+                        <div id="waste-types-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
+                            <!-- Dynamically populated waste categories -->
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Collection Point & Weight -->
+                    <div class="glass-card rounded-3xl p-6 space-y-5">
+                        <label class="block font-display text-sm font-bold text-eco-300 uppercase tracking-wider">
+                            2. Topshirish punkti va miqdorni kiriting
+                        </label>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-slate-300 font-medium mb-1.5">Qabul qilish punkti</label>
+                                <select id="submit-point-select" class="w-full bg-slate-950/80 border border-eco-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-eco-400">
+                                    <!-- Populated via JS -->
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-300 font-medium mb-1.5">Topshirish usuli</label>
+                                <select id="submit-method-select" onchange="updateCalculator()" class="w-full bg-slate-950/80 border border-eco-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-eco-400">
+                                    <option value="instant">Smart-Tarozi ID orqali (Avto-tasdiq ⚡)</option>
+                                    <option value="operator">Punkt operatoriga topshirish (Arizani yuborish)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Weight Slider & Number Input -->
+                        <div class="bg-slate-950/60 p-4 rounded-2xl border border-eco-500/20">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs font-semibold text-slate-300">Chiqindi vazni (kg):</span>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" id="submit-weight-input" min="0.5" max="200" step="0.5" value="5" oninput="syncWeightInput(this.value)" class="w-24 bg-eco-950 border border-eco-400/50 rounded-xl px-3 py-1.5 text-right font-display font-bold text-white text-base focus:outline-none">
+                                    <span class="text-sm font-bold text-eco-400">kg</span>
+                                </div>
+                            </div>
+                            <input type="range" id="submit-weight-slider" min="0.5" max="50" step="0.5" value="5" oninput="syncWeightSlider(this.value)" class="w-full accent-emerald-500 cursor-pointer h-2 bg-slate-800 rounded-lg">
+                            <div class="flex justify-between text-[11px] text-slate-400 mt-1.5">
+                                <span>0.5 kg</span>
+                                <span>10 kg</span>
+                                <span>25 kg</span>
+                                <span>50 kg+</span>
+                            </div>
+                        </div>
+
+                        <!-- Optional Note / Smart Scale Code -->
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1.5">Izoh yoki Smart-Tarozi chek raqami (ixtiyoriy)</label>
+                            <input type="text" id="submit-note" placeholder="Masalan: ECO-BOX #4092 yoki toza PET idishlar" class="w-full bg-slate-950/80 border border-eco-500/30 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-eco-400">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Col: Live Calculator Summary -->
+                <div class="glass-card rounded-3xl p-6 flex flex-col justify-between border border-eco-400/30 relative overflow-hidden">
+                    <div>
+                        <div class="flex items-center justify-between pb-4 border-b border-eco-500/20">
+                            <span class="font-display font-bold text-white">Hisob-kitob ma’lumoti</span>
+                            <span class="text-xs bg-eco-500/20 text-eco-300 px-2.5 py-1 rounded-full font-semibold">Jonli kalkulyator</span>
+                        </div>
+
+                        <div class="my-6 text-center p-5 rounded-2xl bg-slate-950/70 border border-amber-500/30">
+                            <div class="text-xs text-slate-400 mb-1">Hisoblanadigan mukofot:</div>
+                            <div class="flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-coins text-amber-400 text-2xl"></i>
+                                <span id="calc-total-points" class="font-display text-4xl font-black text-white">+250</span>
+                                <span class="text-amber-400 font-bold text-sm">BALL</span>
+                            </div>
+                            <div id="calc-xp-bonus" class="text-xs text-eco-400 font-medium mt-1">+250 XP daraja uchun</div>
+                        </div>
+
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between py-1.5 border-b border-slate-800">
+                                <span class="text-slate-400">Chiqindi turi:</span>
+                                <span id="calc-waste-name" class="font-bold text-white">Plastik (PET)</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-slate-800">
+                                <span class="text-slate-400">1 kg uchun tarif:</span>
+                                <span id="calc-rate" class="font-semibold text-eco-300">50 ball / kg</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-slate-800">
+                                <span class="text-slate-400">Kiritilgan vazn:</span>
+                                <span id="calc-weight" class="font-bold text-white">5 kg</span>
+                            </div>
+                            <div class="flex justify-between py-1.5 border-b border-slate-800">
+                                <span class="text-slate-400">Ekologik foyda (CO₂):</span>
+                                <span id="calc-co2" class="font-semibold text-teal-300">-7.5 kg CO₂</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 space-y-3">
+                        <button onclick="handleWasteSubmit()" class="w-full eco-gradient hover:opacity-95 text-white font-display font-bold py-4 rounded-2xl shadow-lg shadow-eco-600/30 flex items-center justify-center gap-2 transition-all">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Topshirishni Rasmiylashtirish</span>
+                        </button>
+                        <p id="submit-mode-hint" class="text-[11px] text-center text-slate-400">
+                            ⚡ Smart-Tarozi rejimi: Ballar darhol balansingizga qo‘shiladi.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 3: TOPSHIRISH PUNKTLARI (XARITA VA RO'YXAT)
+             ========================================== -->
+        <section id="tab-points" class="tab-section hidden space-y-6 animate-pop">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-white">Qabul Qilish Punktlari va Eko-Hublar</h1>
+                    <p class="text-sm text-slate-300">O‘zingizga eng yaqin topshirish nuqtasini toping va qabul qilinadigan turlarni tekshiring</p>
+                </div>
+                <!-- Filter by Waste Category -->
+                <div class="flex items-center gap-2">
+                    <select id="points-filter-waste" onchange="renderCollectionPoints()" class="bg-slate-950/90 border border-eco-500/30 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none">
+                        <option value="all">Barcha chiqindi turlari</option>
+                    </select>
+                    <select id="points-filter-status" onchange="renderCollectionPoints()" class="bg-slate-950/90 border border-eco-500/30 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none">
+                        <option value="all">Barcha holatlar</option>
+                        <option value="Ochiq">Faqat Ochiq punktlar</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Interactive Stylized Map Radar of Tashkent -->
+            <div class="glass-card rounded-3xl p-4 sm:p-6 overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-satellite-dish text-eco-400"></i>
+                        <span class="font-display font-bold text-sm text-white">Toshkent interaktiv Eko-Xaritasi (Jonli holat)</span>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs">
+                        <span class="flex items-center gap-1.5 text-eco-300"><span class="w-2.5 h-2.5 rounded-full bg-eco-400 inline-block"></span> Ochiq</span>
+                        <span class="flex items-center gap-1.5 text-amber-300"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> To‘lgan (85%+)</span>
+                        <span class="flex items-center gap-1.5 text-rose-300"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> Yopiq</span>
+                    </div>
+                </div>
+
+                <div id="interactive-map" class="relative w-full h-72 sm:h-80 rounded-2xl map-grid border border-eco-500/25 overflow-hidden">
+                    <!-- Decorative Map Roads & River SVG -->
+                    <svg class="absolute inset-0 w-full h-full opacity-25 pointer-events-none" viewBox="0 0 800 400" preserveAspectRatio="none">
+                        <path d="M 0 200 Q 250 180 400 200 T 800 190" stroke="#10b981" stroke-width="2" fill="none" stroke-dasharray="6,6"/>
+                        <path d="M 400 0 L 400 400" stroke="#10b981" stroke-width="1.5" fill="none"/>
+                        <path d="M 120 0 Q 300 220 650 400" stroke="#38bdf8" stroke-width="6" fill="none" opacity="0.4"/>
+                        <circle cx="400" cy="200" r="110" stroke="#10b981" stroke-width="1.5" fill="none"/>
+                        <circle cx="400" cy="200" r="190" stroke="#10b981" stroke-width="1" fill="none" stroke-dasharray="4,4"/>
+                    </svg>
+                    <!-- Pins Container -->
+                    <div id="map-pins-container" class="absolute inset-0"></div>
+                </div>
+            </div>
+
+            <!-- Collection Points Cards Grid -->
+            <div id="points-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Populated via JS -->
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 4: BONUSLAR VA EKO-MARKET
+             ========================================== -->
+        <section id="tab-market" class="tab-section hidden space-y-6 animate-pop">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-white">Bonuslar va Eko-Market</h1>
+                    <p class="text-sm text-slate-300">Yig‘ilgan ballaringizni real xizmatlar, vaucherlar va eko-sovg‘alarga almashtiring</p>
+                </div>
+                <div class="flex items-center gap-3 bg-slate-950/80 border border-amber-500/30 px-4 py-2.5 rounded-2xl self-start">
+                    <span class="text-xs text-slate-300">Sizning balansingiz:</span>
+                    <span id="market-balance" class="font-display font-extrabold text-amber-400 text-lg">2,450 BALL</span>
+                </div>
+            </div>
+
+            <!-- Rewards Grid -->
+            <div id="rewards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Populated via JS -->
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 5: TOPSHIRISH TARIXI (TARIX)
+             ========================================== -->
+        <section id="tab-history" class="tab-section hidden space-y-6 animate-pop">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-white">Amaliyotlar va Topshirish Tarixi</h1>
+                    <p class="text-sm text-slate-300">Barcha topshirilgan chiqindilar va sarflangan bonuslar ro‘yxati</p>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <input type="text" id="history-search" oninput="renderHistory()" placeholder="Punkt yoki tur bo‘yicha qidiruv..." class="bg-slate-950/80 border border-eco-500/30 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none">
+                    <select id="history-filter-status" onchange="renderHistory()" class="bg-slate-950/80 border border-eco-500/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+                        <option value="all">Barcha statuslar</option>
+                        <option value="Tasdiqlangan">Tasdiqlangan</option>
+                        <option value="Kutilmoqda">Kutilmoqda</option>
+                        <option value="Rad etilgan">Rad etilgan</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-3xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-eco-500/20 text-[11px] uppercase tracking-wider text-eco-300 bg-slate-950/50">
+                                <th class="py-4 px-5">Sana / ID</th>
+                                <th class="py-4 px-5">Turi / Tavsif</th>
+                                <th class="py-4 px-5">Topshirish punkti</th>
+                                <th class="py-4 px-5">Miqdor (Vazn)</th>
+                                <th class="py-4 px-5">Ballar</th>
+                                <th class="py-4 px-5">Holati</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="divide-y divide-eco-500/10 text-sm">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 6: HIMOYALANGAN ADMIN PANEL
+             ========================================== -->
+        <section id="tab-admin" class="tab-section hidden space-y-6 animate-pop">
+            
+            <!-- ADMIN LOGIN GATE -->
+            <div id="admin-login-gate" class="max-w-md mx-auto my-8 glass-card rounded-3xl p-6 sm:p-8 border border-amber-500/30">
+                <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center text-2xl mx-auto mb-4">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h2 class="font-display text-2xl font-extrabold text-white text-center">Admin Boshqaruv Tizimi</h2>
+                <p class="text-xs text-slate-300 text-center mt-1 mb-6">Tizim sozlamalari, tariflar va arizalarni tasdiqlash uchun tizimga kiring</p>
+
+                <!-- Demo Credentials Hint Box -->
+                <div class="bg-slate-950/80 border border-eco-500/30 rounded-2xl p-3.5 mb-5 text-xs">
+                    <div class="flex items-center justify-between text-eco-300 font-bold mb-1">
+                        <span><i class="fa-solid fa-key mr-1.5"></i>Demo kirish ma’lumotlari:</span>
+                        <button type="button" onclick="fillAdminDemo()" class="text-[11px] underline text-amber-400 hover:text-amber-300">Avto-to‘ldirish</button>
+                    </div>
+                    <p class="text-slate-300">Login: <code class="text-white font-bold bg-slate-800 px-1.5 py-0.5 rounded">admin</code> | Parol: <code class="text-white font-bold bg-slate-800 px-1.5 py-0.5 rounded">eco2026</code></p>
+                </div>
+
+                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Administrator logini</label>
+                        <input type="text" id="admin-user" required placeholder="admin" class="w-full bg-slate-950 border border-eco-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Maxfiy parol</label>
+                        <input type="password" id="admin-pass" required placeholder="•••••••" class="w-full bg-slate-950 border border-eco-500/30 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400">
+                    </div>
+                    <button type="submit" class="w-full gold-gradient text-slate-950 font-display font-extrabold py-3.5 rounded-xl shadow-lg hover:opacity-95 transition-all">
+                        Boshqaruv paneliga kirish
+                    </button>
+                </form>
+            </div>
+
+            <!-- ADMIN DASHBOARD CONTENT (Shown when authenticated) -->
+            <div id="admin-dashboard-content" class="hidden space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass-card p-5 rounded-2xl border border-amber-500/30">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-xl gold-gradient text-slate-950 flex items-center justify-center text-lg font-bold">
+                            <i class="fa-solid fa-sliders"></i>
+                        </div>
+                        <div>
+                            <h1 class="font-display text-xl font-extrabold text-white">EcoCollect — Boshqaruv Markazi</h1>
+                            <p class="text-xs text-amber-300">To‘liq CRUD boshqaruv: Arizalar, Punktlar, Tariflar va Bonuslar</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="resetDemoData()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-all">
+                            <i class="fa-solid fa-rotate mr-1"></i>Demo ma’lumotlarni tiklash
+                        </button>
+                        <button onclick="logoutAdmin()" class="px-3.5 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all">
+                            <i class="fa-solid fa-right-from-bracket mr-1"></i>Chiqish
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Sub-navigation Tabs -->
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="switchAdminSubTab('approvals')" data-subtab="approvals" class="admin-subtab-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all">
+                        <i class="fa-solid fa-clipboard-check mr-1.5"></i>Arizalarni tasdiqlash (<span id="admin-tab-pending-count">0</span>)
+                    </button>
+                    <button onclick="switchAdminSubTab('points-crud')" data-subtab="points-crud" class="admin-subtab-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all">
+                        <i class="fa-solid fa-map-pin mr-1.5"></i>Punktlarni boshqarish
+                    </button>
+                    <button onclick="switchAdminSubTab('rates-crud')" data-subtab="rates-crud" class="admin-subtab-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all">
+                        <i class="fa-solid fa-tags mr-1.5"></i>Chiqindi turlari va Tariflar
+                    </button>
+                    <button onclick="switchAdminSubTab('rewards-crud')" data-subtab="rewards-crud" class="admin-subtab-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all">
+                        <i class="fa-solid fa-gift mr-1.5"></i>Bonuslarni boshqarish
+                    </button>
+                </div>
+
+                <!-- Admin Sub-Tab 1: Pending Approvals & Analytics -->
+                <div id="admin-sub-approvals" class="admin-sub-section space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Pending Requests List -->
+                        <div class="lg:col-span-2 glass-card rounded-3xl p-6">
+                            <h3 class="font-display font-bold text-white text-base mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-hourglass-half text-amber-400"></i>
+                                <span>Tasdiqlash kutilayotgan chiqindi arizalari</span>
+                            </h3>
+                            <div id="admin-pending-list" class="space-y-3">
+                                <!-- Populated via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Waste Category Distribution Analytics -->
+                        <div class="glass-card rounded-3xl p-6">
+                            <h3 class="font-display font-bold text-white text-base mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-column text-eco-400"></i>
+                                <span>Turlar bo‘yicha statistika</span>
+                            </h3>
+                            <div id="admin-category-bars" class="space-y-3.5">
+                                <!-- Populated via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Sub-Tab 2: Collection Points CRUD -->
+                <div id="admin-sub-points-crud" class="admin-sub-section hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="glass-card rounded-3xl p-6">
+                        <h3 class="font-display font-bold text-white text-base mb-4">Yangi punkt qo‘shish</h3>
+                        <form onsubmit="adminAddPoint(event)" class="space-y-3.5 text-xs">
+                            <div>
+                                <label class="block text-slate-300 mb-1">Punkt nomi</label>
+                                <input type="text" id="new-point-name" required placeholder="Masalan: Olmazor Eco-Hub" class="w-full bg-slate-950 border border-eco-500/30 rounded-xl px-3.5 py-2.5 text-white">
+                            </div>
+                            <div>
+                                <label class="block text-slate-300 mb-1">Manzil / Mo‘ljal</label>
+                                <input type="text" id="new-point-address" required placeholder="Beruniy ko‘chasi, 14-uy" class="w-full bg-slate-950 border border-eco-500/30 rounded-xl px-3.5 py-2.5 text-white">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-slate-300 mb-1">Ish vaqti</label>
+                                    <input type="text" id="new-point-hours" value="08:00 - 20:00" required class="w-full bg-slate-950 border border-eco-500/30 rounded-xl px-3.5 py-2.5 text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-300 mb-1">Masofa</label>
+                                    <input type="text" id="new-point-dist" value="3.1 km" required class="w-full bg-slate-950 border border-eco-500/30 rounded-xl px-3.5 py-2.5 text-white">
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full eco-gradient text-white font-bold py-3 rounded-xl shadow-md">
+                                <i class="fa-solid fa-plus mr-1"></i>Punktni saqlash
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 glass-card rounded-3xl p-6">
+                        <h3 class="font-display font-bold text-white text-base mb-4">Mavjud punktlar holatini boshqarish</h3>
+                        <div id="admin-points-list" class="space-y-2.5">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Sub-Tab 3: Waste Categories & Rates CRUD -->
+                <div id="admin-sub-rates-crud" class="admin-sub-section hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="glass-card rounded-3xl p-6">
+                        <h3 class="font-display font-bold text-white text-base mb-4">Yangi chiqindi turi qo‘shish</h3>
+                        <form onsubmit="adminAddWasteType(event)" class="space-y-3.5 text-xs">
+                            <div>
+                                <label class="block text-slate-300 mb-1">Chiqindi turi nomi</label>
+                                <input type="text" id="new-waste-name" required placeholder="Masalan: To‘qimachilik (Tekstil)" class="w-full bg-slate-950 border border-eco-500/30 rounded-xl px-3.5 py-2.5 text-white">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-slate-300 mb-1">1 kg uchun Ball</label>
+                                    <input type="number" id="new-waste-rate" required min="5" value="65" class="w-full bg-slate-950 border border-eco-500/30 rounded-xl px-3.5 py-2.5 text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-300 mb-1">Ikonka (FontAwesome)</label>
+                                    <select id="new-waste-icon" class="w-full bg-slate-950 border border-eco-500/30 rounded-xl px-3 py-2.5 text-white">
+                                        <option value="fa-shirt">Kiyim / Tekstil</option>
+                                        <option value="fa-oil-can">Yog‘ / Moy</option>
+                                        <option value="fa-lightbulb">Lampochka</option>
+                                        <option value="fa-box">Quti / Boshqa</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full eco-gradient text-white font-bold py-3 rounded-xl">
+                                <i class="fa-solid fa-plus mr-1"></i>Turni qo‘shish
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 glass-card rounded-3xl p-6">
+                        <h3 class="font-display font-bold text-white text-base mb-4">Tariflarni o‘zgartirish (1 kg = Ball)</h3>
+                        <div id="admin-rates-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Sub-Tab 4: Rewards CRUD -->
+                <div id="admin-sub-rewards-crud" class="admin-sub-section hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="glass-card rounded-3xl p-6">
+                        <h3 class="font-display font-bold text-white text-base mb-4">Yangi bonus sovg‘a qo‘shish</h3>
+                        <form onsubmit="adminAddReward(event)" class="space-y-3.5 text-xs">
+                            <div>
+                                <label class="block text-slate-300 mb-1">Bonus / Vaucher nomi</label>
+                                <input type="text" id="new-reward-title" required placeholder="Masalan: Yandex Go 20,000 so‘m" class="w-full bg-slate-950 border border-eco-500/30 rounded-xl px-3.5 py-2.5 text-white">
+                            </div>
+                            <div>
+                                <label class="block text-slate-300 mb-1">Qisqacha tavsif</label>
+                                <input type="text" id="new-reward-desc" required placeholder="Taksi xizmati uchun promo-kod" class="w-full bg-slate-950 border border-eco-500/30 rounded-xl px-3.5 py-2.5 text-white">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-slate-300 mb-1">Qiymati (Ball)</label>
+                                    <input type="number" id="new-reward-cost" required min="100" step="50" value="800" class="w-full bg-slate-950 border border-eco-500/30 rounded-xl px-3.5 py-2.5 text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-300 mb-1">Kategoriya</label>
+                                    <input type="text" id="new-reward-cat" required value="Transport" class="w-full bg-slate-950 border border-eco-500/30 rounded-xl px-3.5 py-2.5 text-white">
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full gold-gradient text-slate-950 font-extrabold py-3 rounded-xl">
+                                <i class="fa-solid fa-plus mr-1"></i>Bonusni qo‘shish
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="lg:col-span-2 glass-card rounded-3xl p-6">
+                        <h3 class="font-display font-bold text-white text-base mb-4">Eko-Marketdagi faol bonuslar</h3>
+                        <div id="admin-rewards-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-30 glass-card border-t border-eco-500/25 px-2 py-2 flex items-center justify-around">
+        <button onclick="switchTab('dashboard')" data-tab="dashboard" class="mobile-nav-btn flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-medium">
+            <i class="fa-solid fa-chart-pie text-base"></i>
+            <span class="text-[10px]">Asosiy</span>
+        </button>
+        <button onclick="switchTab('submit')" data-tab="submit" class="mobile-nav-btn flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-medium">
+            <i class="fa-solid fa-recycle text-base"></i>
+            <span class="text-[10px]">Topshirish</span>
+        </button>
+        <button onclick="switchTab('points')" data-tab="points" class="mobile-nav-btn flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-medium">
+            <i class="fa-solid fa-map-location-dot text-base"></i>
+            <span class="text-[10px]">Punktlar</span>
+        </button>
+        <button onclick="switchTab('market')" data-tab="market" class="mobile-nav-btn flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-medium">
+            <i class="fa-solid fa-gift text-base"></i>
+            <span class="text-[10px]">Bonuslar</span>
+        </button>
+        <button onclick="switchTab('history')" data-tab="history" class="mobile-nav-btn flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-medium">
+            <i class="fa-solid fa-clock-rotate-left text-base"></i>
+            <span class="text-[10px]">Tarix</span>
+        </button>
+    </nav>
+
+    <!-- ==========================================
+         MODAL 1: SMART-BOX QR / PROMO CODE SCANNER
+         ========================================== -->
+    <div id="qr-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-card rounded-3xl max-w-md w-full p-6 border border-eco-400/40 animate-pop">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-display font-bold text-lg text-white flex items-center gap-2">
+                    <i class="fa-solid fa-qrcode text-eco-400"></i>
+                    <span>Smart-Box Kodini Faollashtirish</span>
+                </h3>
+                <button onclick="closeQrModal()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-300 mb-4">
+                Aqlli chiqindi qutisi (Smart-Bin) ekranida chiqqan kodni kiriting yoki demo kodlardan birini tanlang:
+            </p>
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button onclick="setPromoCode('YASHIL2026')" class="text-xs bg-eco-500/20 hover:bg-eco-500/30 border border-eco-500/40 text-eco-300 px-3 py-1.5 rounded-lg font-mono font-bold">YASHIL2026 (+300 ball)</button>
+                <button onclick="setPromoCode('TASHKENT-ECO')" class="text-xs bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 px-3 py-1.5 rounded-lg font-mono font-bold">TASHKENT-ECO (+500 ball)</button>
+            </div>
+            <input type="text" id="promo-code-input" placeholder="Kodni kiriting..." class="w-full bg-slate-950 border border-eco-500/40 rounded-xl px-4 py-3 text-sm font-mono uppercase text-white mb-4 focus:outline-none">
+            <button onclick="claimPromoCode()" class="w-full eco-gradient text-white font-bold py-3 rounded-xl shadow-lg">
+                Ballarni Qabul Qilish
+            </button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 2: VOUCHER REDEMPTION SUCCESS MODAL
+         ========================================== -->
+    <div id="voucher-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-card rounded-3xl max-w-md w-full p-6 border border-amber-400/40 text-center animate-pop">
+            <div class="w-16 h-16 rounded-2xl gold-gradient text-slate-950 flex items-center justify-center text-3xl mx-auto mb-4 shadow-lg">
+                <i class="fa-solid fa-gift"></i>
+            </div>
+            <h3 id="voucher-modal-title" class="font-display font-extrabold text-xl text-white">Tabriklaymiz!</h3>
+            <p id="voucher-modal-desc" class="text-xs text-slate-300 mt-1 mb-5">Sizning bonusingiz muvaffaqiyatli faollashtirildi.</p>
+
+            <div class="bg-slate-950 p-4 rounded-2xl border border-dashed border-amber-400/50 mb-5">
+                <div class="text-[11px] text-slate-400 uppercase tracking-wider mb-1">Maxsus Vaucher / QR Kodingiz</div>
+                <div id="voucher-code-display" class="font-mono text-2xl font-black text-amber-400 tracking-widest my-2">ECO-9482-UZ</div>
+                <button onclick="copyVoucherCode()" class="text-xs text-eco-300 hover:underline flex items-center justify-center gap-1.5 mx-auto mt-2">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>Kodni nusxalash</span>
+                </button>
+            </div>
+
+            <button onclick="closeVoucherModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl">
+                Yopish
+            </button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         APPLICATION JAVASCRIPT LOGIC
+         ========================================== -->
+    <script>
+        const STORAGE_KEY = 'ecocollect_state_v1';
+
+        // Default Initial Data
+        const defaultState = {
+            user: {
+                name: 'Sardorbek Aliyev',
+                points: 2450,
+                xp: 2450,
+                totalKg: 48.5,
+                usedPromos: []
+            },
+            adminLoggedIn: false,
+            selectedWasteId: 'plastik',
+            wasteTypes: [
+                { id: 'plastik', name: 'Plastik (PET)', rate: 50, icon: 'fa-bottle-water', color: 'text-sky-400', bg: 'bg-sky-500/20', totalCollected: 420 },
+                { id: 'qogoz', name: 'Qog‘oz va Karton', rate: 40, icon: 'fa-newspaper', color: 'text-amber-300', bg: 'bg-amber-500/20', totalCollected: 310 },
+                { id: 'shisha', name: 'Shisha idishlar', rate: 35, icon: 'fa-wine-bottle', color: 'text-teal-300', bg: 'bg-teal-500/20', totalCollected: 195 },
+                { id: 'metall', name: 'Metall / Alyuminiy', rate: 120, icon: 'fa-cubes-stacked', color: 'text-slate-300', bg: 'bg-slate-500/20', totalCollected: 140 },
+                { id: 'ewaste', name: 'Elektron chiqindi', rate: 200, icon: 'fa-microchip', color: 'text-purple-400', bg: 'bg-purple-500/20', totalCollected: 85 },
+                { id: 'batareya', name: 'Batareykalar', rate: 300, icon: 'fa-car-battery', color: 'text-rose-400', bg: 'bg-rose-500/20', totalCollected: 42 }
+            ],
+            collectionPoints: [
+                { id: 'p1', name: 'Chilonzor Eco-Hub', address: 'Chilonzor 9-daha, Qatortol ko‘chasi', hours: '08:00 - 22:00', status: 'Ochiq', distance: '1.2 km', load: 45, x: 32, y: 62, types: ['plastik', 'qogoz', 'shisha', 'metall', 'batareya'] },
+                { id: 'p2', name: 'Yunusobod Green Point', address: 'Amir Temur shoh ko‘chasi, Mega Planet oldida', hours: '24/7 Smart-Box', status: 'Ochiq', distance: '2.8 km', load: 60, x: 52, y: 24, types: ['plastik', 'qogoz', 'metall', 'ewaste', 'batareya'] },
+                { id: 'p3', name: 'Mirzo Ulug‘bek Smart Bin', address: 'Buyuk Ipak Yo‘li metrosi yonida', hours: '09:00 - 20:00', status: 'Ochiq', distance: '3.4 km', load: 30, x: 72, y: 38, types: ['plastik', 'qogoz', 'shisha'] },
+                { id: 'p4', name: 'Sergeli Recycle Center', address: 'Sergeli-5 mavzesi, Yangi Sergeli yo‘li', hours: '08:00 - 19:00', status: 'To‘lgan', distance: '6.5 km', load: 92, x: 38, y: 84, types: ['plastik', 'qogoz', 'shisha', 'metall', 'ewaste'] },
+                { id: 'p5', name: 'Shayxontohur Eko-Bekat', address: 'Beruniy shoh ko‘chasi, Tinchlik metrosi', hours: '08:30 - 21:00', status: 'Ochiq', distance: '4.1 km', load: 50, x: 25, y: 36, types: ['plastik', 'qogoz', 'batareya'] },
+                { id: 'p6', name: 'Yashnobod Texno-Punkt', address: 'Parkent ko‘chasi, 74-uy', hours: '09:00 - 18:00', status: 'Yopiq', distance: '5.3 km', load: 15, x: 78, y: 68, types: ['ewaste', 'metall', 'batareya'] }
+            ],
+            rewards: [
+                { id: 'r1', title: 'ATTO Transport Balansi (15,000 so‘m)', desc: 'Avtobus va metro uchun 10 ta bepul qatnov', cost: 600, category: 'Transport', icon: 'fa-bus' },
+                { id: 'r2', title: 'Korzinka.uz 30,000 so‘m Vaucher', desc: 'Barcha Korzinka supermarketlarida xarid uchun', cost: 1200, category: 'Xarid', icon: 'fa-basket-shopping' },
+                { id: 'r3', title: 'Yashil Makon — 1 tup daraxt ekish', desc: 'Sizning nomingizdan daraxt ekiladi va sertifikat beriladi', cost: 800, category: 'Tabiat', icon: 'fa-tree' },
+                { id: 'r4', title: 'EcoCollect Termos va Eko-Sumka', desc: 'Maxsus brendlangan ko‘p martalik shopper va termos', cost: 1800, category: 'Eko-Buyum', icon: 'fa-bag-shopping' },
+                { id: 'r5', title: 'Mobil Aloqa Balansi (20,000 so‘m)', desc: 'Uzmobile, Beeline, Ucell yoki Mobiuz raqamiga', cost: 900, category: 'Aloqa', icon: 'fa-mobile-screen-button' },
+                { id: 'r6', title: 'Magic Cinema — Kino Chiptasi', desc: 'Istalgan seans uchun 1 kishilik VIP chipta', cost: 1500, category: 'Dam olish', icon: 'fa-film' }
+            ],
+            challenges: [
+                { id: 'c1', title: 'Plastik Qahramoni: 10 kg plastik topshiring', progress: 10, target: 10, reward: 200, claimed: false },
+                { id: 'c2', title: 'Xavfsiz Tabiat: Batareya yoki E-chiqindi topshiring', progress: 1, target: 1, reward: 150, claimed: false },
+                { id: 'c3', title: '50 kg Umumiy Qayta Ishlash Marrasi', progress: 48.5, target: 50, reward: 400, claimed: false }
+            ],
+            history: [
+                { id: 'TX-904', date: '07.11.2026, 14:20', type: 'Plastik (PET)', point: 'Chilonzor Eco-Hub', weight: 6.0, points: 300, status: 'Tasdiqlangan', isSpend: false },
+                { id: 'TX-903', date: '06.11.2026, 18:05', type: 'Elektron chiqindi', point: 'Yunusobod Green Point', weight: 2.5, points: 500, status: 'Kutilmoqda', isSpend: false, user: 'Sardorbek Aliyev' },
+                { id: 'TX-902', date: '05.11.2026, 11:30', type: 'Metall / Alyuminiy', point: 'Chilonzor Eco-Hub', weight: 4.0, points: 480, status: 'Kutilmoqda', isSpend: false, user: 'Malika Karimova' },
+                { id: 'TX-901', date: '03.11.2026, 16:45', type: 'Bonus: ATTO Transport Balansi', point: 'Eko-Market', weight: 0, points: -600, status: 'Tasdiqlangan', isSpend: true },
+                { id: 'TX-900', date: '01.11.2026, 09:15', type: 'Qog‘oz va Karton', point: 'Mirzo Ulug‘bek Smart Bin', weight: 12.5, points: 500, status: 'Tasdiqlangan', isSpend: false }
+            ]
+        };
+
+        let state = loadState();
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) return JSON.parse(saved);
+            } catch (e) {
+                console.error(e);
+            }
+            return JSON.parse(JSON.stringify(defaultState));
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Toast Helper
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'border-eco-400 bg-eco-950/95 text-eco-100',
+                warning: 'border-amber-400 bg-slate-900/95 text-amber-100',
+                error: 'border-rose-500 bg-rose-950/95 text-rose-100'
+            };
+            const icons = {
+                success: 'fa-circle-check text-eco-400',
+                warning: 'fa-triangle-exclamation text-amber-400',
+                error: 'fa-circle-xmark text-rose-400'
+            };
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3.5 rounded-2xl border shadow-2xl animate-pop ${colors[type] || colors.success}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type] || icons.success} text-lg"></i>
+                <div class="text-xs font-semibold leading-snug">${message}</div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // Navigation Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) target.classList.remove('hidden');
+
+            // Update Desktop Nav active styling
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.className = 'nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold eco-gradient text-white shadow-lg shadow-eco-600/25 transition-all';
+                } else {
+                    btn.className = 'nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-slate-300 hover:bg-eco-900/50 hover:text-white transition-all';
+                }
+            });
+
+            // Update Mobile Bottom Nav active styling
+            document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.className = 'mobile-nav-btn flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-bold text-eco-400 bg-eco-500/15';
+                } else {
+                    btn.className = 'mobile-nav-btn flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-medium text-slate-400';
+                }
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            renderAll();
+        }
+
+        // Level Calculation Helper
+        function getLevelInfo(xp) {
+            const level = Math.floor(xp / 600) + 1;
+            const titles = ['Eko-Boshlovchi', 'Tabiat Do‘sti', 'Qayta Ishlash Ustasi', 'Yashil Qahramon', 'Eko-Elchi', 'Sayyora Himoyachisi'];
+            const title = titles[Math.min(level - 1, titles.length - 1)];
+            const nextLevelXp = level * 600;
+            const prevLevelXp = (level - 1) * 600;
+            const progress = Math.min(100, Math.round(((xp - prevLevelXp) / (nextLevelXp - prevLevelXp)) * 100));
+            return { level, title, nextLevelXp, progress };
+        }
+
+        // Render Dashboard & Global Header/Sidebar Stats
+        function renderDashboard() {
+            const u = state.user;
+            const lvl = getLevelInfo(u.xp);
+
+            document.getElementById('sidebar-points').textContent = u.points.toLocaleString();
+            document.getElementById('mobile-points').textContent = u.points.toLocaleString();
+            document.getElementById('dash-points').textContent = u.points.toLocaleString();
+            document.getElementById('market-balance').textContent = `${u.points.toLocaleString()} BALL`;
+            document.getElementById('dash-uzs-value').textContent = `${(u.points * 10).toLocaleString()} so‘m`;
+
+            document.getElementById('sidebar-level-badge').textContent = `LVL ${lvl.level}`;
+            document.getElementById('sidebar-rank-title').textContent = lvl.title;
+            document.getElementById('dash-level-title').textContent = lvl.title;
+            document.getElementById('dash-level-num').textContent = `Level ${lvl.level} • ${u.xp.toLocaleString()} XP`;
+
+            document.getElementById('xp-progress-text').textContent = `${u.xp.toLocaleString()} / ${lvl.nextLevelXp.toLocaleString()} XP (${lvl.progress}%)`;
+            document.getElementById('xp-progress-bar').style.width = `${lvl.progress}%`;
+
+            // KPI Stats
+            document.getElementById('stat-total-kg').textContent = u.totalKg.toFixed(1);
+            document.getElementById('stat-co2').textContent = (u.totalKg * 1.5).toFixed(1);
+            document.getElementById('stat-trees').textContent = Math.max(1, Math.floor(u.totalKg / 12));
+            const approvedCount = state.history.filter(h => !h.isSpend && h.status === 'Tasdiqlangan').length;
+            document.getElementById('stat-tx-count').textContent = approvedCount + 10;
+
+            // Update Challenge #3 progress dynamically with user totalKg
+            const c3 = state.challenges.find(c => c.id === 'c3');
+            if (c3) c3.progress = Math.min(c3.target, u.totalKg);
+
+            // Render Challenges
+            const chContainer = document.getElementById('challenges-container');
+            chContainer.innerHTML = state.challenges.map(ch => {
+                const pct = Math.min(100, Math.round((ch.progress / ch.target) * 100));
+                const canClaim = pct >= 100 && !ch.claimed;
+                return `
+                    <div class="p-4 rounded-2xl bg-slate-950/60 border border-eco-500/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="font-bold text-sm text-white">${ch.title}</span>
+                                <span class="text-xs font-bold text-amber-400">+${ch.reward} BALL</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                <div class="h-full eco-gradient rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                            </div>
+                            <div class="text-[11px] text-slate-400 mt-1">Bajarildi: ${ch.progress} / ${ch.target} (${pct}%)</div>
+                        </div>
+                        <div>
+                            ${ch.claimed 
+                                ? `<span class="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-eco-500/15 text-eco-300 text-xs font-bold"><i class="fa-solid fa-check"></i> Olingan</span>`
+                                : canClaim 
+                                    ? `<button onclick="claimChallenge('${ch.id}')" class="px-4 py-2 rounded-xl gold-gradient text-slate-950 font-extrabold text-xs shadow-lg animate-bounce">Bonusni olish!</button>`
+                                    : `<button onclick="switchTab('submit')" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">Bajarish</button>`
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Render Leaderboard
+            const leaders = [
+                { name: 'Dilshod Rakhimov', xp: 4120, badge: '🥇' },
+                { name: 'Malika Karimova', xp: 3390, badge: '🥈' },
+                { name: u.name + ' (Siz)', xp: u.xp, badge: '🥉', isMe: true },
+                { name: 'Javohir Tursunov', xp: 2180, badge: '4' },
+                { name: 'Ziyoda Nazarova', xp: 1940, badge: '5' }
+            ].sort((a, b) => b.xp - a.xp);
+
+            const lbContainer = document.getElementById('leaderboard-container');
+            lbContainer.innerHTML = leaders.map((l, idx) => `
+                <div class="flex items-center justify-between p-3 rounded-xl ${l.isMe ? 'bg-eco-500/20 border border-eco-400/40' : 'bg-slate-950/50 border border-eco-500/10'}">
+                    <div class="flex items-center gap-3">
+                        <span class="w-6 text-center font-bold text-sm ${idx < 3 ? 'text-amber-400' : 'text-slate-400'}">${idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : idx + 1}</span>
+                        <div>
+                            <div class="text-xs font-bold ${l.isMe ? 'text-eco-300' : 'text-white'}">${l.name}</div>
+                            <div class="text-[10px] text-slate-400">${getLevelInfo(l.xp).title}</div>
+                        </div>
+                    </div>
+                    <div class="font-display font-bold text-xs text-amber-400">${l.xp.toLocaleString()} XP</div>
+                </div>
+            `).join('');
+        }
+
+        function claimChallenge(id) {
+            const ch = state.challenges.find(c => c.id === id);
+            if (!ch || ch.claimed) return;
+            ch.claimed = true;
+            state.user.points += ch.reward;
+            state.user.xp += ch.reward;
+            state.history.unshift({
+                id: 'BON-' + Math.floor(100 + Math.random() * 900),
+                date: 'Hozirgina',
+                type: `Missiya bonusi: ${ch.title}`,
+                point: 'Eko-Missiya',
+                weight: 0,
+                points: ch.reward,
+                status: 'Tasdiqlangan',
+                isSpend: false
+            });
+            saveState();
+            renderAll();
+            showToast(`Tabriklaymiz! Missiya uchun +${ch.reward} BALL hisobingizga qo‘shildi!`);
+        }
+
+        // ==========================================
+        // TAB 2: WASTE SUBMISSION & CALCULATOR
+        // ==========================================
+        function renderSubmitSection() {
+            const grid = document.getElementById('waste-types-grid');
+            grid.innerHTML = state.wasteTypes.map(w => {
+                const active = state.selectedWasteId === w.id;
+                return `
+                    <div onclick="selectWasteType('${w.id}')" class="cursor-pointer p-4 rounded-2xl border transition-all ${active ? 'bg-eco-500/20 border-eco-400 shadow-lg shadow-eco-500/15 scale-[1.02]' : 'bg-slate-950/60 border-eco-500/15 hover:border-eco-500/40'}">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="w-10 h-10 rounded-xl ${w.bg} ${w.color} flex items-center justify-center text-lg">
+                                <i class="fa-solid ${w.icon}"></i>
+                            </div>
+                            ${active ? '<i class="fa-solid fa-circle-check text-eco-400"></i>' : ''}
+                        </div>
+                        <div class="font-bold text-sm text-white">${w.name}</div>
+                        <div class="text-xs font-extrabold text-amber-400 mt-0.5">${w.rate} ball / kg</div>
+                    </div>
+                `;
+            }).join('');
+
+            // Populate collection points dropdown
+            const select = document.getElementById('submit-point-select');
+            const currentVal = select.value;
+            select.innerHTML = state.collectionPoints
+                .filter(p => p.status !== 'Yopiq')
+                .map(p => `<option value="${p.name}">${p.name} (${p.distance} • ${p.status})</option>`)
+                .join('');
+            if (currentVal) select.value = currentVal;
+
+            updateCalculator();
+        }
+
+        function selectWasteType(id) {
+            state.selectedWasteId = id;
+            renderSubmitSection();
+        }
+
+        function syncWeightSlider(val) {
+            document.getElementById('submit-weight-input').value = val;
+            updateCalculator();
+        }
+
+        function syncWeightInput(val) {
+            const num = parseFloat(val) || 0.5;
+            document.getElementById('submit-weight-slider').value = Math.min(50, num);
+            updateCalculator();
+        }
+
+        function updateCalculator() {
+            const waste = state.wasteTypes.find(w => w.id === state.selectedWasteId) || state.wasteTypes[0];
+            const weight = Math.max(0.1, parseFloat(document.getElementById('submit-weight-input').value) || 0);
+            const totalPoints = Math.round(weight * waste.rate);
+            const method = document.getElementById('submit-method-select').value;
+
+            document.getElementById('calc-total-points').textContent = `+${totalPoints.toLocaleString()}`;
+            document.getElementById('calc-xp-bonus').textContent = `+${totalPoints} XP daraja uchun`;
+            document.getElementById('calc-waste-name').textContent = waste.name;
+            document.getElementById('calc-rate').textContent = `${waste.rate} ball / kg`;
+            document.getElementById('calc-weight').textContent = `${weight} kg`;
+            document.getElementById('calc-co2').textContent = `-${(weight * 1.5).toFixed(1)} kg CO₂`;
+
+            const hint = document.getElementById('submit-mode-hint');
+            if (method === 'instant') {
+                hint.innerHTML = '⚡ Smart-Tarozi rejimi: Ballar darhol balansingizga qo‘shiladi.';
+            } else {
+                hint.innerHTML = '⏳ Operator rejimi: Ariza Admin paneliga tasdiqlash uchun yuboriladi.';
+            }
+        }
+
+        function handleWasteSubmit() {
+            const waste = state.wasteTypes.find(w => w.id === state.selectedWasteId) || state.wasteTypes[0];
+            const weight = parseFloat(document.getElementById('submit-weight-input').value);
+            if (!weight || weight <= 0) {
+                showToast('Iltimos, to‘g‘ri vazn kiriting!', 'error');
+                return;
+            }
+            const pointName = document.getElementById('submit-point-select').value;
+            const method = document.getElementById('submit-method-select').value;
+            const earnedPoints = Math.round(weight * waste.rate);
+            const now = new Date();
+            const dateStr = `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}, ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+            if (method === 'instant') {
+                state.user.points += earnedPoints;
+                state.user.xp += earnedPoints;
+                state.user.totalKg += weight;
+                waste.totalCollected += weight;
+
+                state.history.unshift({
+                    id: 'TX-' + Math.floor(1000 + Math.random() * 9000),
+                    date: dateStr,
+                    type: waste.name,
+                    point: pointName,
+                    weight: weight,
+                    points: earnedPoints,
+                    status: 'Tasdiqlangan',
+                    isSpend: false,
+                    user: state.user.name
+                });
+                showToast(`Barakalla! ${weight} kg ${waste.name} uchun +${earnedPoints} BALL hisobingizga o‘tkazildi!`);
+            } else {
+                state.history.unshift({
+                    id: 'TX-' + Math.floor(1000 + Math.random() * 9000),
+                    date: dateStr,
+                    type: waste.name,
+                    point: pointName,
+                    weight: weight,
+                    points: earnedPoints,
+                    status: 'Kutilmoqda',
+                    isSpend: false,
+                    user: state.user.name
+                });
+                showToast(`Arizangiz qabul qilindi! Admin tasdiqlagach +${earnedPoints} ball beriladi.`, 'warning');
+            }
+
+            document.getElementById('submit-note').value = '';
+            saveState();
+            renderAll();
+        }
+
+        // ==========================================
+        // TAB 3: COLLECTION POINTS & MAP
+        // ==========================================
+        function renderCollectionPoints() {
+            // Populate filter dropdown once
+            const filterWaste = document.getElementById('points-filter-waste');
+            if (filterWaste.options.length <= 1) {
+                state.wasteTypes.forEach(w => {
+                    const opt = document.createElement('option');
+                    opt.value = w.id;
+                    opt.textContent = w.name;
+                    filterWaste.appendChild(opt);
+                });
+            }
+
+            const selectedWaste = filterWaste.value;
+            const selectedStatus = document.getElementById('points-filter-status').value;
+
+            const filtered = state.collectionPoints.filter(p => {
+                const matchWaste = selectedWaste === 'all' || (p.types && p.types.includes(selectedWaste));
+                const matchStatus = selectedStatus === 'all' || p.status === selectedStatus;
+                return matchWaste && matchStatus;
+            });
+
+            // Update active count in top bar
+            const openCount = state.collectionPoints.filter(p => p.status === 'Ochiq').length;
+            const topActiveEl = document.getElementById('top-active-points');
+            if (topActiveEl) topActiveEl.textContent = `${openCount} ta`;
+
+            // Render Interactive Map Pins
+            const pinsContainer = document.getElementById('map-pins-container');
+            pinsContainer.innerHTML = filtered.map(p => {
+                const colorClass = p.status === 'Ochiq' ? 'bg-eco-500 text-white' : p.status === 'To‘lgan' ? 'bg-amber-400 text-slate-950' : 'bg-rose-500 text-white';
+                return `
+                    <div onclick="choosePointForSubmit('${p.name}')" style="left: ${p.x}%; top: ${p.y}%;" class="absolute -translate-x-1/2 -translate-y-1/2 group cursor-pointer z-10">
+                        <div class="w-8 h-8 rounded-full ${colorClass} flex items-center justify-center shadow-lg font-bold text-xs relative">
+                            <i class="fa-solid fa-recycle"></i>
+                        </div>
+                        <div class="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2.5 rounded-xl bg-slate-950/95 border border-eco-400/40 text-left shadow-xl z-20">
+                            <div class="font-bold text-xs text-white">${p.name}</div>
+                            <div class="text-[10px] text-slate-400">${p.address}</div>
+                            <div class="text-[10px] text-eco-400 font-bold mt-1">Tanlash uchun bosing →</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Render Cards Grid
+            const cardsGrid = document.getElementById('points-cards-grid');
+            cardsGrid.innerHTML = filtered.map(p => {
+                const badgeStyle = p.status === 'Ochiq' 
+                    ? 'bg-eco-500/20 text-eco-300 border-eco-500/30' 
+                    : p.status === 'To‘lgan' 
+                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' 
+                        : 'bg-rose-500/20 text-rose-300 border-rose-500/30';
+
+                const acceptedBadges = (p.types || []).map(tId => {
+                    const wt = state.wasteTypes.find(w => w.id === tId);
+                    return wt ? `<span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-900 text-slate-300 border border-slate-700">${wt.name.split(' ')[0]}</span>` : '';
+                }).join('');
+
+                return `
+                    <div class="glass-card glass-card-hover rounded-3xl p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-start justify-between gap-2 mb-3">
+                                <div>
+                                    <h3 class="font-display font-bold text-base text-white">${p.name}</h3>
+                                    <p class="text-xs text-slate-400 mt-0.5"><i class="fa-solid fa-location-dot text-eco-400 mr-1"></i>${p.address}</p>
+                                </div>
+                                <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border ${badgeStyle}">${p.status}</span>
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs text-slate-300 bg-slate-950/50 px-3 py-2 rounded-xl mb-3">
+                                <span><i class="fa-regular fa-clock text-eco-400 mr-1"></i>${p.hours}</span>
+                                <span class="font-semibold text-amber-300"><i class="fa-solid fa-route mr-1"></i>${p.distance}</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+                                    <span>Konteyner to‘lganligi:</span>
+                                    <span class="font-bold text-white">${p.load}%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                    <div class="h-full ${p.load > 85 ? 'bg-amber-400' : 'bg-eco-500'}" style="width: ${p.load}%"></div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap gap-1.5 mb-4">
+                                ${acceptedBadges}
+                            </div>
+                        </div>
+
+                        <button onclick="choosePointForSubmit('${p.name}')" ${p.status === 'Yopiq' ? 'disabled' : ''} class="w-full py-2.5 rounded-xl text-xs font-bold transition-all ${p.status === 'Yopiq' ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-eco-500/20 hover:bg-eco-500 text-eco-300 hover:text-white border border-eco-500/30'}">
+                            ${p.status === 'Yopiq' ? 'Vaqtincha yopiq' : 'Shu punktga topshirish →'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function choosePointForSubmit(pointName) {
+            switchTab('submit');
+            const select = document.getElementById('submit-point-select');
+            if (select) select.value = pointName;
+            showToast(`"${pointName}" tanlandi. Endi chiqindi vaznini kiriting.`);
+        }
+
+        // ==========================================
+        // TAB 4: REWARDS & ECO-MARKET
+        // ==========================================
+        function renderMarket() {
+            const grid = document.getElementById('rewards-grid');
+            grid.innerHTML = state.rewards.map(r => {
+                const canAfford = state.user.points >= r.cost;
+                return `
+                    <div class="glass-card glass-card-hover rounded-3xl p-6 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/30 text-amber-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid ${r.icon || 'fa-gift'}"></i>
+                                </div>
+                                <span class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-900 text-eco-300 border border-eco-500/20">${r.category}</span>
+                            </div>
+                            <h3 class="font-display font-bold text-base text-white mb-1">${r.title}</h3>
+                            <p class="text-xs text-slate-300 leading-relaxed mb-4">${r.desc}</p>
+                        </div>
+
+                        <div class="pt-4 border-t border-eco-500/15 flex items-center justify-between">
+                            <div>
+                                <div class="text-[10px] text-slate-400">Qiymati:</div>
+                                <div class="font-display font-extrabold text-amber-400 text-base">${r.cost.toLocaleString()} BALL</div>
+                            </div>
+                            <button onclick="redeemReward('${r.id}')" class="px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${canAfford ? 'gold-gradient text-slate-950 shadow-lg shadow-amber-500/20 hover:opacity-95' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}">
+                                ${canAfford ? 'Almashtirish' : 'Ball yetarli emas'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function redeemReward(rewardId) {
+            const reward = state.rewards.find(r => r.id === rewardId);
+            if (!reward) return;
+
+            if (state.user.points < reward.cost) {
+                showToast(`Sizga yana ${(reward.cost - state.user.points).toLocaleString()} ball yetishmayapti!`, 'error');
+                return;
+            }
+
+            state.user.points -= reward.cost;
+            const code = 'ECO-' + Math.floor(1000 + Math.random() * 9000) + '-UZ';
+
+            const now = new Date();
+            const dateStr = `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}, ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+            state.history.unshift({
+                id: 'VCH-' + Math.floor(100 + Math.random() * 900),
+                date: dateStr,
+                type: `Bonus: ${reward.title}`,
+                point: `Kod: ${code}`,
+                weight: 0,
+                points: -reward.cost,
+                status: 'Tasdiqlangan',
+                isSpend: true
+            });
+
+            saveState();
+            renderAll();
+
+            // Open Voucher Modal
+            document.getElementById('voucher-modal-title').textContent = reward.title;
+            document.getElementById('voucher-modal-desc').textContent = `${reward.cost} ball evaziga muvaffaqiyatli faollashtirildi!`;
+            document.getElementById('voucher-code-display').textContent = code;
+            document.getElementById('voucher-modal').classList.remove('hidden');
+        }
+
+        function closeVoucherModal() {
+            document.getElementById('voucher-modal').classList.add('hidden');
+        }
+
+        function copyVoucherCode() {
+            const code = document.getElementById('voucher-code-display').textContent;
+            const temp = document.createElement('textarea');
+            temp.value = code;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            temp.remove();
+            showToast(`Vaucher kodi (${code}) nusxalandi!`);
+        }
+
+        // ==========================================
+        // TAB 5: TRANSACTION HISTORY
+        // ==========================================
+        function renderHistory() {
+            const query = (document.getElementById('history-search').value || '').toLowerCase();
+            const statusFilter = document.getElementById('history-filter-status').value;
+
+            const filtered = state.history.filter(h => {
+                const matchText = h.type.toLowerCase().includes(query) || h.point.toLowerCase().includes(query) || h.id.toLowerCase().includes(query);
+                const matchStatus = statusFilter === 'all' || h.status === statusFilter;
+                return matchText && matchStatus;
+            });
+
+            const tbody = document.getElementById('history-table-body');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400 text-xs">Hech qanday amaliyot topilmadi</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(h => {
+                const statusBadge = h.status === 'Tasdiqlangan'
+                    ? 'bg-eco-500/20 text-eco-300 border-eco-500/30'
+                    : h.status === 'Kutilmoqda'
+                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                        : 'bg-rose-500/20 text-rose-300 border-rose-500/30';
+
+                return `
+                    <tr class="hover:bg-slate-900/40 transition-colors">
+                        <td class="py-3.5 px-5">
+                            <div class="font-bold text-white text-xs">${h.id}</div>
+                            <div class="text-[11px] text-slate-400">${h.date}</div>
+                        </td>
+                        <td class="py-3.5 px-5 font-semibold text-white text-xs">${h.type}</td>
+                        <td class="py-3.5 px-5 text-xs text-slate-300">${h.point}</td>
+                        <td class="py-3.5 px-5 text-xs text-slate-300">${h.weight > 0 ? h.weight + ' kg' : '—'}</td>
+                        <td class="py-3.5 px-5 font-display font-bold text-xs ${h.points >= 0 ? 'text-eco-400' : 'text-amber-400'}">
+                            ${h.points >= 0 ? '+' + h.points : h.points} BALL
+                        </td>
+                        <td class="py-3.5 px-5">
+                            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full border ${statusBadge}">${h.status}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ==========================================
+        // TAB 6: PROTECTED ADMIN PANEL & CRUD
+        // ==========================================
+        function fillAdminDemo() {
+            document.getElementById('admin-user').value = 'admin';
+            document.getElementById('admin-pass').value = 'eco2026';
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('admin-user').value.trim();
+            const p = document.getElementById('admin-pass').value.trim();
+            if (u === 'admin' && p === 'eco2026') {
+                state.adminLoggedIn = true;
+                saveState();
+                renderAdmin();
+                showToast('Administrator paneliga muvaffaqiyatli kirdingiz!');
+            } else {
+                showToast('Login yoki parol noto‘g‘ri! Demo: admin / eco2026', 'error');
+            }
+        }
+
+        function logoutAdmin() {
+            state.adminLoggedIn = false;
+            saveState();
+            renderAdmin();
+            showToast('Admin tizimidan chiqildi.');
+        }
+
+        function switchAdminSubTab(subId) {
+            document.querySelectorAll('.admin-sub-section').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`admin-sub-${subId}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.admin-subtab-btn').forEach(btn => {
+                if (btn.dataset.subtab === subId) {
+                    btn.className = 'admin-subtab-btn px-4 py-2.5 rounded-xl text-xs font-bold gold-gradient text-slate-950 shadow-md transition-all';
+                } else {
+                    btn.className = 'admin-subtab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 hover:text-white border border-eco-500/20 transition-all';
+                }
+            });
+        }
+
+        function renderAdmin() {
+            const pendingItems = state.history.filter(h => h.status === 'Kutilmoqda');
+            document.getElementById('admin-pending-badge').textContent = pendingItems.length;
+            document.getElementById('mobile-admin-badge').textContent = pendingItems.length;
+            document.getElementById('admin-tab-pending-count').textContent = pendingItems.length;
+
+            const gate = document.getElementById('admin-login-gate');
+            const content = document.getElementById('admin-dashboard-content');
+
+            if (!state.adminLoggedIn) {
+                gate.classList.remove('hidden');
+                content.classList.add('hidden');
+                return;
+            }
+
+            gate.classList.add('hidden');
+            content.classList.remove('hidden');
+
+            // 1. Render Pending Requests
+            const pendingList = document.getElementById('admin-pending-list');
+            if (pendingItems.length === 0) {
+                pendingList.innerHTML = `<div class="p-6 rounded-2xl bg-slate-950/50 text-center text-xs text-slate-400">Hozircha tasdiqlash kutilayotgan arizalar yo‘q ✅</div>`;
+            } else {
+                pendingList.innerHTML = pendingItems.map(item => `
+                    <div class="p-4 rounded-2xl bg-slate-950/70 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-amber-400">${item.id}</span>
+                                <span class="text-xs font-bold text-white">${item.user || 'Sardorbek Aliyev'}</span>
+                                <span class="text-[11px] text-slate-400">• ${item.date}</span>
+                            </div>
+                            <div class="text-sm font-bold text-eco-300 mt-1">${item.type} — ${item.weight} kg (+${item.points} ball)</div>
+                            <div class="text-xs text-slate-400"><i class="fa-solid fa-location-dot mr-1"></i>${item.point}</div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button onclick="adminApproveTx('${item.id}')" class="px-3.5 py-2 rounded-xl bg-eco-500 hover:bg-eco-400 text-slate-950 font-extrabold text-xs">
+                                <i class="fa-solid fa-check mr-1"></i>Tasdiqlash
+                            </button>
+                            <button onclick="adminRejectTx('${item.id}')" class="px-3.5 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 font-bold text-xs">
+                                Rad etish
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // 2. Render Analytics Bars
+            const maxCollected = Math.max(...state.wasteTypes.map(w => w.totalCollected || 10), 100);
+            document.getElementById('admin-category-bars').innerHTML = state.wasteTypes.map(w => {
+                const pct = Math.min(100, Math.round(((w.totalCollected || 20) / maxCollected) * 100));
+                return `
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 font-medium">${w.name}</span>
+                            <span class="font-bold text-white">${w.totalCollected || 25} kg</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                            <div class="h-full eco-gradient rounded-full" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // 3. Render Collection Points CRUD List
+            document.getElementById('admin-points-list').innerHTML = state.collectionPoints.map(p => `
+                <div class="p-3.5 rounded-2xl bg-slate-950/60 border border-eco-500/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <div class="font-bold text-sm text-white">${p.name} <span class="text-xs text-eco-400">(${p.status})</span></div>
+                        <div class="text-xs text-slate-400">${p.address} • ${p.hours}</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="adminTogglePointStatus('${p.id}')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-amber-300 font-semibold">
+                            Holatni o‘zgartirish
+                        </button>
+                        <button onclick="adminDeletePoint('${p.id}')" class="px-2.5 py-1.5 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 text-xs">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            // 4. Render Waste Rates CRUD List
+            document.getElementById('admin-rates-list').innerHTML = state.wasteTypes.map(w => `
+                <div class="p-4 rounded-2xl bg-slate-950/60 border border-eco-500/15 flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl ${w.bg} ${w.color} flex items-center justify-center">
+                            <i class="fa-solid ${w.icon}"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-xs text-white">${w.name}</div>
+                            <div class="text-[11px] text-slate-400">Joriy: ${w.rate} ball/kg</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="rate-inp-${w.id}" value="${w.rate}" min="5" class="w-16 bg-slate-900 border border-eco-500/30 rounded-lg px-2 py-1 text-xs text-white text-right">
+                        <button onclick="adminUpdateRate('${w.id}')" class="px-2.5 py-1 rounded-lg bg-eco-500 text-slate-950 font-bold text-xs">Saqlash</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // 5. Render Rewards CRUD List
+            document.getElementById('admin-rewards-list').innerHTML = state.rewards.map(r => `
+                <div class="p-3.5 rounded-2xl bg-slate-950/60 border border-eco-500/15 flex items-center justify-between gap-2">
+                    <div>
+                        <div class="font-bold text-xs text-white">${r.title}</div>
+                        <div class="text-[11px] text-amber-400 font-bold">${r.cost} BALL • ${r.category}</div>
+                    </div>
+                    <button onclick="adminDeleteReward('${r.id}')" class="px-2.5 py-1.5 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 text-xs">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function adminApproveTx(txId) {
+            const tx = state.history.find(h => h.id === txId);
+            if (!tx) return;
+            tx.status = 'Tasdiqlangan';
+            state.user.points += tx.points;
+            state.user.xp += tx.points;
+            state.user.totalKg += tx.weight;
+            saveState();
+            renderAll();
+            showToast(`Ariza ${txId} tasdiqlandi va +${tx.points} ball foydalanuvchiga o‘tkazildi!`);
+        }
+
+        function adminRejectTx(txId) {
+            const tx = state.history.find(h => h.id === txId);
+            if (!tx) return;
+            tx.status = 'Rad etilgan';
+            saveState();
+            renderAll();
+            showToast(`Ariza ${txId} rad etildi.`, 'warning');
+        }
+
+        function adminAddPoint(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-point-name').value.trim();
+            const address = document.getElementById('new-point-address').value.trim();
+            const hours = document.getElementById('new-point-hours').value.trim();
+            const distance = document.getElementById('new-point-dist').value.trim();
+
+            state.collectionPoints.push({
+                id: 'p' + Date.now(),
+                name,
+                address,
+                hours,
+                status: 'Ochiq',
+                distance,
+                load: 20,
+                x: Math.floor(20 + Math.random() * 60),
+                y: Math.floor(20 + Math.random() * 60),
+                types: ['plastik', 'qogoz', 'shisha', 'metall']
+            });
+
+            e.target.reset();
+            saveState();
+            renderAll();
+            showToast(`Yangi "${name}" punkti xaritaga qo‘shildi!`);
+        }
+
+        function adminTogglePointStatus(pointId) {
+            const p = state.collectionPoints.find(pt => pt.id === pointId);
+            if (!p) return;
+            const order = ['Ochiq', 'To‘lgan', 'Yopiq'];
+            p.status = order[(order.indexOf(p.status) + 1) % order.length];
+            saveState();
+            renderAll();
+            showToast(`${p.name} holati "${p.status}" ga o‘zgartirildi.`);
+        }
+
+        function adminDeletePoint(pointId) {
+            state.collectionPoints = state.collectionPoints.filter(p => p.id !== pointId);
+            saveState();
+            renderAll();
+            showToast('Topshirish punkti o‘chirildi.', 'warning');
+        }
+
+        function adminUpdateRate(wasteId) {
+            const w = state.wasteTypes.find(wt => wt.id === wasteId);
+            const inp = document.getElementById(`rate-inp-${wasteId}`);
+            if (!w || !inp) return;
+            w.rate = Math.max(1, parseInt(inp.value, 10) || w.rate);
+            saveState();
+            renderAll();
+            showToast(`${w.name} tarifi 1 kg = ${w.rate} ball qilib yangilandi!`);
+        }
+
+        function adminAddWasteType(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-waste-name').value.trim();
+            const rate = parseInt(document.getElementById('new-waste-rate').value, 10) || 50;
+            const icon = document.getElementById('new-waste-icon').value;
+
+            state.wasteTypes.push({
+                id: 'w' + Date.now(),
+                name,
+                rate,
+                icon,
+                color: 'text-eco-400',
+                bg: 'bg-eco-500/20',
+                totalCollected: 10
+            });
+            e.target.reset();
+            saveState();
+            renderAll();
+            showToast(`"${name}" chiqindi turi (${rate} ball/kg) qo‘shildi!`);
+        }
+
+        function adminAddReward(e) {
+            e.preventDefault();
+            const title = document.getElementById('new-reward-title').value.trim();
+            const desc = document.getElementById('new-reward-desc').value.trim();
+            const cost = parseInt(document.getElementById('new-reward-cost').value, 10) || 500;
+            const category = document.getElementById('new-reward-cat').value.trim();
+
+            state.rewards.push({
+                id: 'r' + Date.now(),
+                title,
+                desc,
+                cost,
+                category,
+                icon: 'fa-award'
+            });
+            e.target.reset();
+            saveState();
+            renderAll();
+            showToast(`Yangi "${title}" bonusi Eko-Marketga qo‘shildi!`);
+        }
+
+        function adminDeleteReward(rewardId) {
+            state.rewards = state.rewards.filter(r => r.id !== rewardId);
+            saveState();
+            renderAll();
+            showToast('Bonus Eko-Marketdan o‘chirildi.', 'warning');
+        }
+
+        function resetDemoData() {
+            localStorage.removeItem(STORAGE_KEY);
+            state = JSON.parse(JSON.stringify(defaultState));
+            state.adminLoggedIn = true;
+            saveState();
+            renderAll();
+            showToast('Barcha demo ma’lumotlar dastlabki holatiga tiklandi!');
+        }
+
+        // ==========================================
+        // QR / PROMO CODE MODAL FUNCTIONS
+        // ==========================================
+        function openQrModal() {
+            document.getElementById('qr-modal').classList.remove('hidden');
+        }
+        function closeQrModal() {
+            document.getElementById('qr-modal').classList.add('hidden');
+        }
+        function setPromoCode(code) {
+            document.getElementById('promo-code-input').value = code;
+        }
+        function claimPromoCode() {
+            const code = (document.getElementById('promo-code-input').value || '').trim().toUpperCase();
+            if (!code) {
+                showToast('Iltimos, promo-kodni kiriting!', 'error');
+                return;
+            }
+            if (state.user.usedPromos.includes(code)) {
+                showToast('Bu koddan avval foydalangansiz!', 'warning');
+                return;
+            }
+
+            const promoMap = {
+                'YASHIL2026': 300,
+                'TASHKENT-ECO': 500,
+                'ECOCOLLECT': 250
+            };
+
+            const bonus = promoMap[code] || 150;
+            state.user.usedPromos.push(code);
+            state.user.points += bonus;
+            state.user.xp += bonus;
+
+            state.history.unshift({
+                id: 'QR-' + Math.floor(100 + Math.random() * 900),
+                date: 'Hozirgina',
+                type: `Smart-Box Kod (${code})`,
+                point: 'Smart-Terminal',
+                weight: 1.5,
+                points: bonus,
+                status: 'Tasdiqlangan',
+                isSpend: false
+            });
+
+            document.getElementById('promo-code-input').value = '';
+            closeQrModal();
+            saveState();
+            renderAll();
+            showToast(`Smart-Box kodi qabul qilindi! +${bonus} BALL qo‘shildi!`);
+        }
+
+        function renderAll() {
+            renderDashboard();
+            renderSubmitSection();
+            renderCollectionPoints();
+            renderMarket();
+            renderHistory();
+            renderAdmin();
+        }
+
+        // Initialize Application on Load
+        window.onload = function() {
+            switchTab('dashboard');
+            switchAdminSubTab('approvals');
+        };
+    </script>
+</body>
+</html>
